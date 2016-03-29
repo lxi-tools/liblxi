@@ -31,10 +31,17 @@
 4. Development
 
     This is open source. If you want to help out with the project please join
-    in. Any contributions (code, doc, ideas, etc.) are welcome.
+    in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
+
+    Please use the github issue tracker and pull request features.
 
 
-5. License
+5. Website
+
+    Visit http://lxi.github.io
+
+
+6. License
 
     liblxi includes code covered by the following licenses:
 
