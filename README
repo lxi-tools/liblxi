@@ -1,0 +1,46 @@
+
+=== LXI library (liblxi) ===
+
+
+1. Introduction
+
+    The LXI library (liblxi) is a library which offers a simple API for
+    communicating with LXI devices. The API allows applications to discover
+    devices on your network and send LXI commands and receive responses.
+
+    The library is based on the VXI11 RPC protocol implementation which is part
+    of the asynDriver EPICS module, which, at time of writing, is available
+    from: http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
+
+
+2. Status
+
+    The code is currently considered experimental. API and internals are
+    subject to change. Use on your own risk.
+
+
+3. Installation
+
+    Install steps:
+
+    $ ./configure
+    $ make
+    $ make install
+
+
+4. Development
+
+    This is open source. If you want to help out with the project please join
+    in. Any contributions (code, doc, ideas, etc.) are welcome.
+
+
+5. License
+
+    liblxi includes code covered by the following licenses:
+
+     * BSD-3, commonly known as the 3-clause (or "modified") BSD license
+     * MIT, the MIT License
+     * EPICS Open software license
+
+    For license details please see the COPYING file.
+

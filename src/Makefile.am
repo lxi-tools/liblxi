@@ -1,0 +1,17 @@
+lib_LTLIBRARIES = liblxi.la
+
+liblxidir = $(includedir)/lxi
+liblxi_HEADERS = include/lxi/lxi.h
+
+liblxi_la_SOURCES = \
+    lxi.c            \
+    list.c            \
+	vxi11core_clnt.c   \
+	vxi11core_xdr.c     \
+	include/vxi11core.h \
+    include/list.h      \
+    include/lxi/lxi.h
+
+liblxi_la_CFLAGS = -I$(top_srcdir)/include
+
+liblxi_la_LDFLAGS = -version-info $(LIBLXI_LT_VERSION) -init,init
