@@ -41,7 +41,7 @@
 #include <pthread.h>
 #include "vxi11core.h"
 #include "list.h"
-#include <lxi/lxi.h>
+#include <lxi.h>
 
 #define RPC_PORT 111
 #define ID_REQ_STRING "*IDN?\n"

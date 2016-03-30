@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = liblxi.la
 
-liblxidir = $(includedir)/lxi
-liblxi_HEADERS = include/lxi/lxi.h
+liblxidir = $(includedir)
+liblxi_HEADERS = include/lxi.h
 
 liblxi_la_SOURCES = \
     lxi.c            \
@@ -10,7 +10,7 @@ liblxi_la_SOURCES = \
 	vxi11core_xdr.c     \
 	include/vxi11core.h \
     include/list.h      \
-    include/lxi/lxi.h
+    include/lxi.h
 
 liblxi_la_CFLAGS = -I$(top_srcdir)/include
 

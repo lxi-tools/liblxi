@@ -27,13 +27,14 @@
     $ make
     $ make install
 
+
 4. API usage
 
     Here is a simple code example on how to use the liblxi API:
 
      #include <stdio.h>
      #include <string.h>
-     #include <lxi/lxi.h>
+     #include <lxi.h>
 
      int main() 
      {
