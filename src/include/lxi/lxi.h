@@ -44,7 +44,7 @@ typedef struct lxi_device_t lxi_device_t;
 typedef void lxi_devices_t;
 
 int lxi_init(void);
-int lxi_discover_devices(lxi_devices_t **devices, int timeout, bool verbose);
+int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
 int lxi_get_device_info(lxi_devices_t *devices, lxi_device_t *device);
 int lxi_connect(char *address);
 int lxi_send(int device, char *message, int length, int timeout);

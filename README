@@ -27,8 +27,39 @@
     $ make
     $ make install
 
+4. API usage
 
-4. Development
+    Here is a simple code example on how to use the liblxi API:
+
+     #include <stdio.h>
+     #include <string.h>
+     #include <lxi/lxi.h>
+
+     int main() 
+     {
+         char response[LXI_MESSAGE_LENGTH_MAX];
+         int device, length, timeout = 1;
+         char *command = "*IDN?";
+
+         device = lxi_connect("10.42.0.42");
+    
+         // Send SCPI command
+         lxi_send(device, command, strlen(command), timeout);
+
+         // Wait for response
+         lxi_receive(device, response, &length, timeout);
+    
+         printf("%s\n", response);
+    
+         lxi_disconnect(device);
+     }
+
+    The example above prints the ID string of the LXI instrument, eg.:
+    
+    RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
+
+
+5. Development
 
     This is open source. If you want to help out with the project please join
     in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
@@ -36,12 +67,12 @@
     Please use the github issue tracker and pull request features.
 
 
-5. Website
+6. Website
 
     Visit http://lxi.github.io
 
 
-6. License
+7. License
 
     liblxi includes code covered by the following licenses:
 

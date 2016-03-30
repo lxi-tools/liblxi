@@ -319,7 +319,7 @@ static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_l
     } while (count > 0);
 }
 
-int lxi_discover_devices(lxi_devices_t **devices, int timeout, bool verbose)
+int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose)
 {
     struct sockaddr_in *broadcast_addr;
     list_iter_p iter;
