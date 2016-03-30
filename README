@@ -54,7 +54,8 @@
          lxi_disconnect(device);
      }
 
-    The example above prints the ID string of the LXI instrument, eg.:
+    The example above prints the ID string of the LXI instrument. For example,
+    a Rigol DS1054Z oscilloscope would respond:
     
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
 
