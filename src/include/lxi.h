@@ -34,6 +34,9 @@
 #define LXI_ID_LENGTH_MAX 2048
 #define LXI_MESSAGE_LENGTH_MAX 0x200000
 
+#define LXI_OK     0
+#define LXI_ERROR -1
+
 struct lxi_device_t
 {
     char address[15];

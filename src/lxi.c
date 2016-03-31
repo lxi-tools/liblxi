@@ -140,7 +140,7 @@ error_link:
 error_client:
 error_session:
     pthread_mutex_unlock(&session_mutex);
-    return -1;
+    return LXI_ERROR;
 }
 
 int lxi_disconnect(int device)
@@ -171,7 +171,7 @@ int lxi_send(int device, char *message, int length, int timeout)
     write_params.data.data_val = message;
     write_resp = device_write_1(&write_params, session[device].rpc_client);
     if (write_resp == NULL)
-        return -1;
+        return LXI_ERROR;
 
     return 0;
 }
@@ -195,7 +195,7 @@ int lxi_receive(int device, char *message, int *length, int timeout)
     {
         read_resp = device_read_1(&read_params, session[device].rpc_client);
         if (read_resp == NULL)
-            return -1;
+            return LXI_ERROR;
 
         if (read_resp->data.data_len > 0)
         {
@@ -204,7 +204,7 @@ int lxi_receive(int device, char *message, int *length, int timeout)
             offset += read_resp->data.data_len;
         }
         else
-            return -1;
+            return LXI_ERROR;
     } while (read_resp->reason == 0);
 
     return 0;
@@ -245,7 +245,7 @@ static int get_device_id(char *address, char *id, int timeout)
     return 1;
 }
 
-static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_list, int timeout)
+static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_list, int timeout)
 {
     int sockfd;
     struct sockaddr_in send_addr;
@@ -262,7 +262,7 @@ static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_l
     if (sockfd == -1)
     {
         perror("Socket creation error");
-        exit(1);
+        return LXI_ERROR;
     }
 
     // Set socket options - broadcast
@@ -270,7 +270,7 @@ static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_l
                     &broadcast,sizeof (broadcast))) == -1)
     {
         perror("setsockopt - SO_SOCKET");
-        exit(1);
+        goto socket_options_error;
     }
 
     // Set socket options - timeout
@@ -279,7 +279,7 @@ static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_l
     if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
     {
         perror("setsockopt - SO_RCVTIMEO");
-        exit(1);
+        goto socket_options_error;
     }
 
     // Senders address
@@ -317,12 +317,21 @@ static void discover_devices(struct sockaddr_in *broadcast_addr, list_p device_l
             }
         }
     } while (count > 0);
+
+    return LXI_OK;
+
+socket_options_error:
+    // Shutdown socket
+    shutdown(sockfd, SHUT_RDWR);
+
+    return LXI_ERROR;
 }
 
 int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose)
 {
     struct sockaddr_in *broadcast_addr;
     list_iter_p iter;
+    int status;
 
     list_p broadcast_addr_list = create_list();
 
@@ -343,7 +352,7 @@ int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose)
         broadcast_addr = (struct sockaddr_in *) list_current(iter);
         if (verbose)
             printf("Broadcasting on %s\n", inet_ntoa(broadcast_addr->sin_addr));
-        discover_devices(broadcast_addr, device_list, timeout);
+        status = discover_devices(broadcast_addr, device_list, timeout);
     }
 
     // Return list of any devices found
@@ -356,7 +365,7 @@ int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose)
 
     first_get_info_call = true;
 
-    return 0;
+    return LXI_OK;
 }
 
 int lxi_get_device_info(void *devices, lxi_device_t *device)
