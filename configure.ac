@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([liblxi], [0.1], [], [liblxi], [http://github.com/lxi/liblxi])
+AC_INIT([liblxi], [0.2], [], [liblxi], [http://github.com/lxi/liblxi])
 AC_CONFIG_HEADERS([src/include/config.h])
 AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip -Wall -Werror])
 AM_SILENT_RULES([yes])
