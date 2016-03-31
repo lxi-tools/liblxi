@@ -27,6 +27,7 @@
     $ make
     $ make install
 
+
 4. The liblxi API
 
     The API is small and simple. It basically includes features required for
@@ -40,7 +41,8 @@
     int lxi_receive(int device, char *message, int *length, int timeout);
     int lxi_disconnect(int device);
 
-4. API usage
+
+5. API usage
 
     Here is a simple code example on how to use the liblxi API:
 
@@ -73,7 +75,7 @@
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
 
 
-5. Development
+6. Development
 
     This is open source. If you want to help out with the project please join
     in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
@@ -81,12 +83,12 @@
     Please use the github issue tracker and pull request features.
 
 
-6. Website
+7. Website
 
     Visit http://lxi.github.io
 
 
-7. License
+8. License
 
     liblxi includes code covered by the following licenses:
 
