@@ -1,0 +1,37 @@
+.TH "lxi_send" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_receive \- receive message from LXI device
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_receive(int device, char *message, int length, int timeout);
+
+.SH "DESCRIPTION"
+.PP
+The .
+.BR lxi_receive()
+function receives up to 
+.I length
+bytes in the message buffer pointed to by
+.I message
+
+.PP
+The
+.I timeout
+is in milliseconds.
+
+.SH "RETURN VALUE"
+
+Upon successful completion 
+.BR lxi_receive() 
+returns the number of bytes successfully received, or
+.BR LXI_ERROR
+if an error occurred.
+
+.SH "SEE ALSO"
+.BR lxi_open (3),
+.BR lxi_send (3),
+.BR lxi_disconnect (3),

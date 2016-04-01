@@ -1,0 +1,32 @@
+.TH "lxi_disconnect" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_disconnect \- disconnect a LXI connection
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_disconnect(int device);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_disconnect()
+function disconnects an existing LXI connection handle pointed to by 
+.I device
+
+.SH "RETURN VALUE"
+
+Upon successful completion 
+.BR lxi_disconnect() 
+returns
+.BR LXI_OK
+, else
+.BR LXI_ERROR
+is returned if an error occurred.
+
+.SH "SEE ALSO"
+.BR lxi_send (3),
+.BR lxi_receive (3),
+.BR lxi_disconnect (3),

@@ -1,0 +1,32 @@
+.TH "lxi_init" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_init \- initialize LXI library
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_init(void);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_init()
+function initializes the LXI library. This is required before calling any other available lxi functions.
+
+.SH "RETURN VALUE"
+
+Upon successful completion 
+.BR lxi_init() 
+returns 
+.BR LXI_OK
+, or 
+.BR LXI_ERROR
+if an error occurred.
+
+.SH "SEE ALSO"
+.BR lxi_connect (3),
+.BR lxi_send (3),
+.BR lxi_receive (3),
+.BR lxi_disconnect (3),

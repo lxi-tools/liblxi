@@ -1,0 +1,30 @@
+.TH "lxi_connect" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_connect \- connect to LXI device
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_connect(char *address);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_connect()
+function connects to a LXI device at IP address pointed to by
+.I address
+
+.SH "RETURN VALUE"
+
+Upon successful completion 
+.BR lxi_connect() 
+returns a new connection handle, or 
+.BR LXI_ERROR
+if an error occurred.
+
+.SH "SEE ALSO"
+.BR lxi_send (3),
+.BR lxi_receive (3),
+.BR lxi_disconnect (3),
