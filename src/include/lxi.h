@@ -31,8 +31,7 @@
 #ifndef LXI_H
 #define LXI_H
 
-#define LXI_ID_LENGTH_MAX 2048
-#define LXI_MESSAGE_LENGTH_MAX 0x200000
+#define LXI_ID_LENGTH_MAX 65536
 
 #define LXI_OK     0
 #define LXI_ERROR -1
@@ -51,6 +50,6 @@ int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
 int lxi_get_device_info(lxi_devices_t *devices, lxi_device_t *device);
 int lxi_connect(char *address);
 int lxi_send(int device, char *message, int length, int timeout);
-int lxi_receive(int device, char *message, int *length, int timeout);
+int lxi_receive(int device, char *message, int length, int timeout);
 int lxi_disconnect(int device);
 #endif

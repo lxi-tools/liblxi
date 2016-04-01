@@ -164,8 +164,8 @@ int lxi_send(int device, char *message, int length, int timeout)
 
     // Configure VXI11 write parameters
     write_params.lid = session[device].link_resp->lid;
-    write_params.lock_timeout = timeout*1000;
-    write_params.io_timeout = timeout*1000;
+    write_params.lock_timeout = timeout;
+    write_params.io_timeout = timeout;
     write_params.flags = 0x9;
     write_params.data.data_len = length;
     write_params.data.data_val = message;
@@ -173,22 +173,24 @@ int lxi_send(int device, char *message, int length, int timeout)
     if (write_resp == NULL)
         return LXI_ERROR;
 
-    return 0;
+    // Return number of bytes sent
+    return write_resp->size;
 }
 
-int lxi_receive(int device, char *message, int *length, int timeout)
+int lxi_receive(int device, char *message, int length, int timeout)
 {
     Device_ReadParms read_params;
     Device_ReadResp *read_resp;
     int offset = 0;
+    int response_length = 0;
 
     // Configure VXI11 read parameters
     read_params.lid = session[device].link_resp->lid;
-    read_params.lock_timeout = timeout*1000;
-    read_params.io_timeout = timeout*1000;
+    read_params.lock_timeout = timeout;
+    read_params.io_timeout = timeout;
     read_params.flags = 0x9;
     read_params.termChar = '\n';
-    read_params.requestSize = LXI_MESSAGE_LENGTH_MAX;
+    read_params.requestSize = length;
 
     // Receive until done
     do
@@ -199,16 +201,24 @@ int lxi_receive(int device, char *message, int *length, int timeout)
 
         if (read_resp->data.data_len > 0)
         {
+            response_length += read_resp->data.data_len;
+
+            // Return error if provided receive message buffer is too small
+            if (response_length > length)
+                return LXI_ERROR;
+
             memcpy(message+offset, read_resp->data.data_val, read_resp->data.data_len);
-            *length += read_resp->data.data_len;
             offset += read_resp->data.data_len;
         }
         else
             return LXI_ERROR;
+
     } while (read_resp->reason == 0);
 
-    return 0;
+    // Return number of bytes received
+    return response_length;
 }
+
 static void get_avail_broadcast_addrs(list_p broadcast_addr_list)
 {
     struct ifaddrs *ifap;
@@ -235,14 +245,26 @@ static int get_device_id(char *address, char *id, int timeout)
     int device;
 
     device = lxi_connect(address);
-    if (device >= 0)
-    {
-        lxi_send(device, ID_REQ_STRING, strlen(ID_REQ_STRING), timeout);
-        lxi_receive(device, id, &length, timeout);
-        return 0;
-    }
+    if (device < 0)
+        goto error_connect;
 
-    return 1;
+    length = lxi_send(device, ID_REQ_STRING, strlen(ID_REQ_STRING), timeout);
+    if (length < 0)
+        goto error_send;
+
+    length = lxi_receive(device, id, LXI_ID_LENGTH_MAX, timeout);
+    if (length < 0)
+        goto error_receive;
+
+    lxi_disconnect(device);
+
+    return LXI_OK;
+
+error_receive:
+error_send:
+    lxi_disconnect(device);
+error_connect:
+    return LXI_ERROR;
 }
 
 static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_list, int timeout)
@@ -252,7 +274,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_li
     struct sockaddr_in recv_addr;
     int broadcast = true;
     int count;
-    char buffer[LXI_MESSAGE_LENGTH_MAX];
+    char buffer[LXI_ID_LENGTH_MAX];
     struct timeval tv;
     socklen_t addrlen;
     lxi_device_t device;
@@ -304,13 +326,13 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_li
     // Go through received responses
     do
     {
-        count = recvfrom(sockfd, buffer, LXI_MESSAGE_LENGTH_MAX, 0,
+        count = recvfrom(sockfd, buffer, LXI_ID_LENGTH_MAX, 0,
                 (struct sockaddr*)&recv_addr, &addrlen);
         if (count > 0)
         {
             // Add device if an LXI/SCPI ID string is returned
             char *address = inet_ntoa(recv_addr.sin_addr);
-            if (get_device_id(address, device.id, timeout) == 0)
+            if (get_device_id(address, device.id, timeout) == LXI_OK)
             {
                 strcpy(device.address, address);
                 list_add(device_list, &device, sizeof(lxi_device_t));
