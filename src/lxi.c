@@ -396,7 +396,7 @@ int lxi_get_device_info(void *devices, lxi_device_t *device)
     lxi_device_t *device_p;
 
     if (devices == NULL)
-        return 1;
+        return LXI_ERROR;
 
     if (first_get_info_call)
     {
@@ -414,8 +414,8 @@ int lxi_get_device_info(void *devices, lxi_device_t *device)
     {
         memset(device->address, 0, 15);
         memset(device->id, 0, LXI_ID_LENGTH_MAX);
-        return 1;
+        return LXI_ERROR;
     }
 
-    return 0;
+    return LXI_OK;
 }
