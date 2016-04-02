@@ -296,8 +296,8 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_li
     }
 
     // Set socket options - timeout
-    tv.tv_sec = timeout;
-    tv.tv_usec = 0;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
     if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
     {
         perror("setsockopt - SO_RCVTIMEO");
