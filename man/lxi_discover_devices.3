@@ -1,0 +1,66 @@
+.TH "lxi_discover_devices" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_discover_devices \- search for LXI devices on network
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_discover_devices()
+function searches for LXI devices on the local network by automatically
+broadcasting the GETPORT RPC call on the broadcast addresses of the available
+network interfaces. The result is returned in a list of devices pointed to by
+.I devices
+which can be iterated through using the iterator function
+.BR lxi_get_devince_info()
+
+.PP
+The 
+.I timeout
+is in miliseconds.
+
+.PP
+If
+.I verbose
+is set true (1) the function will print broadcast information during search, or if set false (0) it will be silent.
+
+.SH "RETURN VALUE"
+
+Upon successful completion 
+.BR lxi_discover_devices() 
+returns 
+.BR LXI_OK
+, or
+.BR LXI_ERROR
+if an error occurred.
+
+.SH EXAMPLE
+    #include <lxi.h>
+
+    lxi_device_t device;
+    lxi_devices_t *devices;
+    int status;
+
+    // Search for LXI devices, timeout 1 s
+    status = lxi_discover_devices(&devices, 1000, false);
+
+    if ((status == LXI_OK) && (devices != NULL))
+    {
+        // Print discovered device IP addresses and IDs
+        while (lxi_get_device_info(devices, &device) == LXI_OK)
+            printf("ip: %s, id: %s)\n", device.address, device.id);
+    } else
+        printf("No devices found\n");
+
+.SH "SEE ALSO"
+.BR lxi_init (3)
+.BR lxi_open (3),
+.BR lxi_close (3)
+.BR lxi_receive (3),
+.BR lxi_disconnect (3),
