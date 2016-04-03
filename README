@@ -31,7 +31,7 @@
 4. The liblxi API
 
     The API is small and simple. It basically includes features required for
-    discovering and communicating SCPI messages to LXI devices.
+    discovering and communicating SCPI messages with LXI devices:
 
     int lxi_init(void);
     int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
