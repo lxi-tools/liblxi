@@ -24,6 +24,20 @@ AC_ENABLE_STATIC
 AC_PROG_CC
 AC_LANG([C])
 AC_PROG_INSTALL
+
+rpc=1
+AC_CHECK_HEADERS([rpc/rpc.h], , [rpc=0])
+if test $rpc == 0
+then
+    AC_MSG_ERROR([required library rpc not found])
+fi
+
+AC_PATH_PROG([RPCGEN], [rpcgen])
+AC_ARG_VAR([RPCGEN], [RPC compiler command])
+if test z$RPCGEN = z ; then
+    AC_MSG_ERROR([could not locate rpcgen])
+fi
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([man/Makefile])
