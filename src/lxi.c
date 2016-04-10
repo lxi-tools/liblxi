@@ -43,8 +43,8 @@
 #include <lxi.h>
 
 #define RPC_PORT 111
+#define SESSIONS_MAX 256
 #define ID_REQ_STRING "*IDN?\n"
-#define SESSIONS_MAX 50
 
 struct session_t
 {
@@ -80,7 +80,7 @@ int lxi_init(void)
         session[i].connected = false;
     }
 
-    return 0;
+    return LXI_OK;
 }
 
 int lxi_connect(char *address)
@@ -90,7 +90,6 @@ int lxi_connect(char *address)
     bool session_available = false;
     int i;
 
-    // Assign session ID
     pthread_mutex_lock(&session_mutex);
 
     // Find a free session entry
@@ -129,6 +128,7 @@ int lxi_connect(char *address)
 
     pthread_mutex_unlock(&session_mutex);
 
+    // Return session handle
     return i;
 
 error_link:
@@ -142,15 +142,20 @@ error_session:
 int lxi_disconnect(int device)
 {
     if (device > SESSIONS_MAX)
-        return 1;
+        return LXI_ERROR;
 
+    pthread_mutex_lock(&session_mutex);
+
+    // Free resources
     if (session[device].connected)
         clnt_destroy(session[device].rpc_client);
 
     session[device].connected = false;
     session[device].allocated = false;
 
-    return 0;
+    pthread_mutex_unlock(&session_mutex);
+
+    return LXI_OK;
 }
 
 int lxi_send(int device, char *message, int length, int timeout)
@@ -365,7 +370,7 @@ int lxi_discover(struct lxi_info_t *info, int timeout)
                 if (info->broadcast != NULL)
                     info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
 
-                // Find LXI devices on broadcast address
+                // Find LXI devices via broadcast address
                 status = discover_devices(broadcast_addr, info, timeout);
 
             }
