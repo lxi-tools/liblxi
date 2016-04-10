@@ -40,7 +40,6 @@
 #include <rpc/rpc.h>
 #include <pthread.h>
 #include "vxi11core.h"
-#include "list.h"
 #include <lxi.h>
 
 #define RPC_PORT 111
@@ -57,9 +56,6 @@ struct session_t
 
 static struct session_t session[SESSIONS_MAX] = {};
 static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
-static list_p device_list = NULL;
-static list_iter_p device_iter;
-static bool first_get_info_call = true;
 
 // Payload representing GETPORT RPC call
 static char rpc_GETPORT_msg[] =
@@ -233,26 +229,6 @@ int lxi_receive(int device, char *message, int length, int timeout)
     return response_length;
 }
 
-static void get_avail_broadcast_addrs(list_p broadcast_addr_list)
-{
-    struct ifaddrs *ifap;
-
-    if (getifaddrs(&ifap) == 0)
-    {
-        struct ifaddrs *p = ifap;
-
-        while (p)
-        {
-            if ((p->ifa_addr) && (p->ifa_addr->sa_family == AF_INET))
-                list_add(broadcast_addr_list, p->ifa_broadaddr, sizeof(struct sockaddr_in));
-
-            p = p->ifa_next;
-        }
-
-        freeifaddrs(ifap);
-    }
-}
-
 static int get_device_id(char *address, char *id, int timeout)
 {
     int length;
@@ -272,6 +248,10 @@ static int get_device_id(char *address, char *id, int timeout)
 
     lxi_disconnect(device);
 
+    // Strip newline
+    if (id[strlen(id)-1] == '\n')
+        id[strlen(id)-1] = 0;
+
     return LXI_OK;
 
 error_receive:
@@ -281,7 +261,7 @@ error_connect:
     return LXI_ERROR;
 }
 
-static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_list, int timeout)
+static int discover_devices(struct sockaddr_in *broadcast_addr, struct lxi_info_t *info, int timeout)
 {
     int sockfd;
     struct sockaddr_in send_addr;
@@ -289,9 +269,9 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_li
     int broadcast = true;
     int count;
     char buffer[LXI_ID_LENGTH_MAX];
+    char id[LXI_ID_LENGTH_MAX];
     struct timeval tv;
     socklen_t addrlen;
-    lxi_device_t device;
 
     // Create a socket
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -346,10 +326,11 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, list_p device_li
         {
             // Add device if an LXI/SCPI ID string is returned
             char *address = inet_ntoa(recv_addr.sin_addr);
-            if (get_device_id(address, device.id, timeout) == LXI_OK)
+            if (get_device_id(address, id, timeout) == LXI_OK)
             {
-                strcpy(device.address, address);
-                list_add(device_list, &device, sizeof(lxi_device_t));
+                // Notify device found via callback
+                if (info->device != NULL)
+                    info->device(address, id);
             }
         }
     } while (count > 0);
@@ -363,72 +344,34 @@ socket_options_error:
     return LXI_ERROR;
 }
 
-int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose)
+int lxi_discover(struct lxi_info_t *info, int timeout)
 {
     struct sockaddr_in *broadcast_addr;
-    list_iter_p iter;
+    struct ifaddrs *ifap;
     int status;
 
-    list_p broadcast_addr_list = create_list();
-
-    // Free old device list if any
-    if (device_list != NULL)
-        destroy_list(device_list);
-
-    // Create device list
-    device_list = create_list();
-
-    // Find available broadcast addresses
-    get_avail_broadcast_addrs(broadcast_addr_list);
-
-    // Find LXI devices
-    iter = list_iterator(broadcast_addr_list, FRONT);
-    while (list_next(iter) != NULL)
+    // Go through available broadcast addresses
+    if (getifaddrs(&ifap) == 0)
     {
-        broadcast_addr = (struct sockaddr_in *) list_current(iter);
-        if (verbose)
-            printf("Broadcasting on %s\n", inet_ntoa(broadcast_addr->sin_addr));
-        status = discover_devices(broadcast_addr, device_list, timeout);
-    }
+        struct ifaddrs *ifap_p = ifap;
 
-    // Return list of any devices found
-    if (list_empty(device_list))
-        *devices = NULL;
-    else
-        *devices = device_list;
+        while (ifap_p)
+        {
+            if ((ifap_p->ifa_addr) && (ifap_p->ifa_addr->sa_family == AF_INET))
+            {
+                broadcast_addr = (struct sockaddr_in *) ifap_p->ifa_broadaddr;
 
-    destroy_list(broadcast_addr_list);
+                // Notify current broadcast address and network interface via callback
+                if (info->broadcast != NULL)
+                    info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
 
-    first_get_info_call = true;
+                // Find LXI devices on broadcast address
+                status = discover_devices(broadcast_addr, info, timeout);
 
-    return LXI_OK;
-}
-
-int lxi_get_device_info(void *devices, lxi_device_t *device)
-{
-    list_p device_list = (list_p) devices;
-    lxi_device_t *device_p;
-
-    if (devices == NULL)
-        return LXI_ERROR;
-
-    if (first_get_info_call)
-    {
-        device_iter = list_iterator(device_list, FRONT);
-        first_get_info_call = false;
-    }
-
-    if (list_next(device_iter) != NULL)
-    {
-        device_p = (lxi_device_t *) list_current(device_iter);
-        strncpy(device->address, device_p->address, 15);
-        strncpy(device->id, device_p->id, LXI_ID_LENGTH_MAX);
-    }
-    else
-    {
-        memset(device->address, 0, 15);
-        memset(device->id, 0, LXI_ID_LENGTH_MAX);
-        return LXI_ERROR;
+            }
+            ifap_p = ifap_p->ifa_next;
+        }
+        freeifaddrs(ifap);
     }
 
     return LXI_OK;

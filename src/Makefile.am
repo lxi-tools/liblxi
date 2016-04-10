@@ -5,11 +5,9 @@ liblxi_HEADERS = include/lxi.h
 
 liblxi_la_SOURCES = \
     lxi.c            \
-    list.c            \
 	vxi11core_clnt.c   \
 	vxi11core_xdr.c     \
 	include/vxi11core.h \
-    include/list.h      \
     include/lxi.h
 
 liblxi_la_CFLAGS = -I$(top_srcdir)/include

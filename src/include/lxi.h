@@ -36,20 +36,17 @@
 #define LXI_OK     0
 #define LXI_ERROR -1
 
-struct lxi_device_t
+struct lxi_info_t
 {
-    char address[15];
-    char id[LXI_ID_LENGTH_MAX];
+    void (*broadcast)(char *address, char *interface);
+    void (*device)(char *address, char *id);
 };
 
-typedef struct lxi_device_t lxi_device_t;
-typedef void lxi_devices_t;
-
 int lxi_init(void);
-int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
-int lxi_get_device_info(lxi_devices_t *devices, lxi_device_t *device);
+int lxi_discover(struct lxi_info_t *info, int timeout);
 int lxi_connect(char *address);
 int lxi_send(int device, char *message, int length, int timeout);
 int lxi_receive(int device, char *message, int length, int timeout);
 int lxi_disconnect(int device);
+
 #endif

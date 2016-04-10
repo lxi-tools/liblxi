@@ -1,0 +1,97 @@
+.TH "lxi_discover" "3" "28 March 2016"
+
+.SH "NAME"
+lxi_discover \- search for LXI devices on network
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_discover(lxi_info_t *info, int timeout);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_discover()
+function searches for LXI devices on the local network by automatically
+broadcasting the GETPORT RPC call on the broadcast addresses of the available
+network interfaces. During the search operation results are returned by callbacks registered via the
+.I info
+structure, defined as follows:
+.sp
+.nf
+struct lxi_info_t
+{
+    void (*broadcast)(char *address, char *interface);
+    void (*device)(char *address, char *id);
+};
+.fi
+
+.PP
+The
+.I broadcast
+callback is called whenever a new network interface is searched.
+
+The
+.I device
+callback is called whenever a new LXI device is found.
+
+.PP
+The
+.I timeout
+is in miliseconds.
+
+.SH "RETURN VALUE"
+
+Upon successful completion
+.BR lxi_discover()
+returns
+.BR LXI_OK
+, or
+.BR LXI_ERROR
+if an error occurred.
+
+.SH EXAMPLE
+.PP
+The following example searches for LXI devices and prints the ID and IP addresses of found devices:
+
+.nf
+#include <stdio.h>
+#include <lxi.h>
+
+void broadcast(char *address, char *interface)
+{
+    printf("Broadcasting on interface %s\\n", interface);
+}
+
+void device(char *address, char *id)
+{
+    printf(" Found %s on address %s\\n", id, address);
+}
+
+int main()
+{
+    struct lxi_info_t info;
+
+    // Initialize LXI library
+    lxi_init();
+
+    // Set up search information callbacks
+    info.broadcast = &broadcast;
+    info.device = &device;
+
+    printf("Searching for LXI devices - please wait...\\n");
+
+    // Search for LXI devices, 1 second timeout
+    lxi_discover(&info, 1000);
+
+    return 0;
+}
+.fi
+
+.SH "SEE ALSO"
+.BR lxi_init (3)
+.BR lxi_open (3),
+.BR lxi_close (3)
+.BR lxi_receive (3),
+.BR lxi_disconnect (3),
