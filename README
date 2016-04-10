@@ -34,8 +34,7 @@
     discovering and communicating SCPI messages with LXI devices:
 
     int lxi_init(void);
-    int lxi_discover_devices(lxi_devices_t **devices, int timeout, int verbose);
-    int lxi_get_device_info(lxi_devices_t *devices, lxi_device_t *device);
+    int lxi_discover(struct lxi_info_t *info, int timeout);
     int lxi_connect(char *address);    
     int lxi_send(int device, char *message, int length, int timeout);
     int lxi_receive(int device, char *message, int length, int timeout);
