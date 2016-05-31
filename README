@@ -4,9 +4,10 @@
 
 1. Introduction
 
-    The LXI library (liblxi) is a library which offers a simple API for
-    communicating with LXI devices. The API allows applications to discover
-    devices on your network and send LXI commands and receive responses.
+    The LXI library (liblxi) is a library for GNU/Linux systems which offers a
+    simple API for communicating with LXI devices. The API allows applications
+    to discover devices on your network and send LXI commands and receive
+    responses.
 
     The library is based on the VXI11 RPC protocol implementation which is part
     of the asynDriver EPICS module, which, at time of writing, is available
