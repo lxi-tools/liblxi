@@ -14,13 +14,7 @@
     from: http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
 
 
-2. Status
-
-    The code is currently considered experimental. API and internals are
-    subject to change. Use on your own risk.
-
-
-3. Installation
+2. Installation
 
     Install steps:
 
@@ -29,7 +23,7 @@
     $ make install
 
 
-4. The liblxi API
+3. The liblxi API
 
     The API is small and simple. It basically includes features required for
     discovering and communicating SCPI messages with LXI devices:
@@ -42,7 +36,7 @@
     int lxi_disconnect(int device);
 
 
-5. API usage
+4. API usage
 
     Here is a simple code example on how to use the liblxi API:
 
@@ -80,7 +74,7 @@
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
 
 
-6. Development
+5. Development
 
     This is open source. If you want to help out with the project please join
     in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
@@ -88,12 +82,12 @@
     Please use the github issue tracker and pull request features.
 
 
-7. Website
+6. Website
 
     Visit http://lxi.github.io
 
 
-8. License
+7. License
 
     liblxi includes code covered by the following licenses:
 
