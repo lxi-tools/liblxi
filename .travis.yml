@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: c
 before_script: ./autogen.sh
-script: ./configure && make
+script: ./configure && make && sudo make install
