@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([liblxi], [0.5], [], [liblxi], [http://lxi.github.io])
+AC_INIT([liblxi], [1.0], [], [liblxi], [http://lxi.github.io])
 AC_CONFIG_HEADERS([src/include/config.h])
 AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip -Wall -Werror])
 AM_SILENT_RULES([yes])
@@ -16,7 +16,7 @@ LT_INIT
 # - If binary compatibility has been broken (eg. removed or changed interfaces)
 #   change to C+1:0:0
 # - If the interface is the same as the previous version, change to C:R+1:A
-LIBLXI_LT_VERSION=0:0:0
+LIBLXI_LT_VERSION=1:0:0
 AC_SUBST(LIBLXI_LT_VERSION)
 
 AC_ENABLE_SHARED
