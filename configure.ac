@@ -28,12 +28,6 @@ AC_PROG_INSTALL
 # Check for rpc headers
 AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Required rpc headers not found])])
 
-AC_PATH_PROG([RPCGEN], [rpcgen])
-AC_ARG_VAR([RPCGEN], [RPC compiler command])
-if test z$RPCGEN = z ; then
-    AC_MSG_ERROR([could not locate rpcgen])
-fi
-
 # Check if we should use the internal or the system supplied VXI library
 AC_ARG_WITH(vxi,
             [AS_HELP_STRING([--with-vxi=@<:@internal/system@:>@],
@@ -51,7 +45,6 @@ AS_IF([ test "x$with_vxi" = xsystem], [
 ], [
   AC_MSG_RESULT(no)
 ])
-
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
