@@ -25,12 +25,8 @@ AC_PROG_CC
 AC_LANG([C])
 AC_PROG_INSTALL
 
-rpc=1
-AC_CHECK_HEADERS([rpc/rpc.h], , [rpc=0])
-if test $rpc == 0
-then
-    AC_MSG_ERROR([required library rpc not found])
-fi
+# Check for rpc headers
+AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Required rpc headers not found])])
 
 AC_PATH_PROG([RPCGEN], [rpcgen])
 AC_ARG_VAR([RPCGEN], [RPC compiler command])
