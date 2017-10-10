@@ -38,6 +38,25 @@ if test z$RPCGEN = z ; then
     AC_MSG_ERROR([could not locate rpcgen])
 fi
 
+# Check if we should use the internal or the system supplied VXI library
+AC_ARG_WITH(vxi,
+            [AS_HELP_STRING([--with-vxi=@<:@internal/system@:>@],
+                            [whether to use system VXI [default=internal]])],
+            [],
+            [with_vxi=internal])
+
+AM_CONDITIONAL(USE_INTERNAL_VXI, [test "x$with_vxi" = xinternal])
+
+AC_MSG_CHECKING(if we are using system VXI)
+AS_IF([ test "x$with_vxi" = xsystem], [
+  AC_MSG_RESULT(yes)
+  AC_CHECK_HEADERS(vxi.h, [], [AC_ERROR([A working VXI is required])])
+  AC_CHECK_LIB(vxiclient, device_read_1, [], [AC_ERROR([A working VXI is required])])
+], [
+  AC_MSG_RESULT(no)
+])
+
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([man/Makefile])
