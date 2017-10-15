@@ -124,7 +124,7 @@ int lxi_connect(char *address)
     link_params.clientId = (unsigned long) session[i].rpc_client;
     link_params.lock_timeout = 0;
     link_params.lockDevice = 0;
-    link_params.device = "device";
+    link_params.device = "inst0";
     session[i].link_resp = create_link_1(&link_params, session[i].rpc_client);
     if (session[i].link_resp == NULL)
         goto error_link;
