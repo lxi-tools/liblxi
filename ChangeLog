@@ -1,5 +1,28 @@
 
-=== liblxi v1.0 ===
+=== liblxi v1.1 ===
 
+
+Changes since liblxi v1.0:
+
+ * Fixed instrument not responding
+
+   Use the default LAN Device Name of "inst0". Some instruments do not
+   respond if this device name is not used.
+
+ * Remove unused rpcgen tool check
+
+ * Cleanup rpc header check
+
+ * Add support for use of system VXI library
+
+   Added configure option '--with-vxi=[internal/system]' which allows the
+   user to decide whether to use the internally bundled VXI library or the
+   VXI library provided by the system.
+
+   By default the internal VXI library is used.
+
+
+
+liblxi v1.0:
 
  * First release (stable)
