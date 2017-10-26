@@ -215,7 +215,10 @@ int lxi_receive(int device, char *message, int length, int timeout)
 
         if (read_resp.error != 0)
         {
-            printf("Error: Read error (response error code %d)\n", (int) read_resp.error);
+            if (read_resp.error == 15)
+                printf("Error: Read error (timeout)\n"); // Most common error explained
+            else
+                printf("Error: Read error (response error code %d)\n", (int) read_resp.error);
             return LXI_ERROR;
         }
 
