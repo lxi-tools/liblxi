@@ -7,14 +7,26 @@ lxi_connect \- connect to LXI device
 .PP
 .B #include <lxi.h>
 
-.B int lxi_connect(char *address);
+.B int lxi_connect(char *address, char *name, int timeout);
 
 .SH "DESCRIPTION"
 .PP
 The
 .BR lxi_connect()
-function connects to a LXI device at IP address pointed to by
+function connects to a LXI device with
+.I name
+at IP address pointed to by
 .I address
+
+.PP
+If
+.I name
+is NULL then the default name "inst0" will be used.
+
+.PP
+The
+.I timeout
+is in miliseconds.
 
 .SH "RETURN VALUE"
 

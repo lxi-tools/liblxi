@@ -42,9 +42,9 @@
 #include "vxi11core.h"
 #include <lxi.h>
 
-#define RPC_PORT      111
-#define SESSIONS_MAX  256
-#define ID_REQ_STRING "*IDN?\n"
+#define RPC_PORT               111
+#define SESSIONS_MAX           256
+#define ID_REQ_STRING    "*IDN?\n"
 
 #define RECEIVE_END_BIT       0x04  // Receive end indicator
 #define RECEIVE_TERM_CHAR_BIT 0x02  // Receive termination character
@@ -86,7 +86,7 @@ int lxi_init(void)
     return LXI_OK;
 }
 
-int lxi_connect(char *address)
+int lxi_connect(char *address, char *name, int timeout)
 {
     Create_LinkParms link_params;
     bool session_available = false;
@@ -118,9 +118,14 @@ int lxi_connect(char *address)
 
     // Set up link
     link_params.clientId = (unsigned long) session[i].rpc_client;
-    link_params.lock_timeout = 0;
-    link_params.lockDevice = 0;
-    link_params.device = "inst0";
+    link_params.lock_timeout = timeout;
+    link_params.lockDevice = timeout;
+
+    if (name == NULL)
+        link_params.device = "inst0"; // Use default device name
+    else
+        link_params.device = name; // Use provided device name
+
     if (create_link_1(&link_params, &session[i].link_resp, session[i].rpc_client) != RPC_SUCCESS)
         goto error_link;
 
@@ -168,7 +173,6 @@ int lxi_send(int device, char *message, int length, int timeout)
 {
     Device_WriteParms write_params;
     Device_WriteResp write_resp;
-    struct timeval tv;
 
     // Configure VXI11 write parameters
     write_params.lid = session[device].link_resp.lid;
@@ -192,7 +196,6 @@ int lxi_receive(int device, char *message, int length, int timeout)
     Device_ReadResp read_resp;
     int offset = 0;
     int response_length = 0;
-    struct timeval tv;
 
     // Configure VXI11 read parameters
     read_params.lid = session[device].link_resp.lid;
@@ -253,7 +256,7 @@ static int get_device_id(char *address, char *id, int timeout)
     int length;
     int device;
 
-    device = lxi_connect(address);
+    device = lxi_connect(address, NULL, timeout);
     if (device < 0)
         goto error_connect;
 

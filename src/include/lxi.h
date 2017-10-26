@@ -44,7 +44,7 @@ struct lxi_info_t
 
 int lxi_init(void);
 int lxi_discover(struct lxi_info_t *info, int timeout);
-int lxi_connect(char *address);
+int lxi_connect(char *address, char *name, int timeout);
 int lxi_send(int device, char *message, int length, int timeout);
 int lxi_receive(int device, char *message, int length, int timeout);
 int lxi_disconnect(int device);
