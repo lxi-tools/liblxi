@@ -30,7 +30,7 @@
 
     int lxi_init(void);
     int lxi_discover(struct lxi_info_t *info, int timeout);
-    int lxi_connect(char *address);    
+    int lxi_connect(char *address, char *name, int timeout);
     int lxi_send(int device, char *message, int length, int timeout);
     int lxi_receive(int device, char *message, int length, int timeout);
     int lxi_disconnect(int device);
@@ -54,7 +54,7 @@
          lxi_init();
 
          // Connect to LXI device
-         device = lxi_connect("10.42.0.42");
+         device = lxi_connect("10.42.0.42", "inst0", timeout);
 
          // Send SCPI command
          lxi_send(device, command, strlen(command), timeout);
