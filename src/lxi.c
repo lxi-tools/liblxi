@@ -42,16 +42,19 @@
 #include "vxi11core.h"
 #include <lxi.h>
 
-#define RPC_PORT 111
-#define SESSIONS_MAX 256
+#define RPC_PORT      111
+#define SESSIONS_MAX  256
 #define ID_REQ_STRING "*IDN?\n"
+
+#define RECEIVE_END_BIT       0x04  // Receive end indicator
+#define RECEIVE_TERM_CHAR_BIT 0x02  // Receive termination character
 
 struct session_t
 {
     bool allocated;
     bool connected;
     CLIENT *rpc_client;
-    Create_LinkResp *link_resp;
+    Create_LinkResp link_resp;
 };
 
 static struct session_t session[SESSIONS_MAX] = {};
@@ -86,7 +89,6 @@ int lxi_init(void)
 int lxi_connect(char *address)
 {
     Create_LinkParms link_params;
-    Create_LinkResp *link_resp;
     bool session_available = false;
     int i;
 
@@ -119,8 +121,7 @@ int lxi_connect(char *address)
     link_params.lock_timeout = 0;
     link_params.lockDevice = 0;
     link_params.device = "inst0";
-    session[i].link_resp = create_link_1(&link_params, session[i].rpc_client);
-    if (session[i].link_resp == NULL)
+    if (create_link_1(&link_params, &session[i].link_resp, session[i].rpc_client) != RPC_SUCCESS)
         goto error_link;
 
     session[i].allocated = true;
@@ -141,6 +142,8 @@ error_session:
 
 int lxi_disconnect(int device)
 {
+    Device_Error device_error;
+
     if (device > SESSIONS_MAX)
         return LXI_ERROR;
 
@@ -148,7 +151,10 @@ int lxi_disconnect(int device)
 
     // Free resources
     if (session[device].connected)
+    {
+        destroy_link_1(&session[device].link_resp.lid, &device_error, session[device].rpc_client);
         clnt_destroy(session[device].rpc_client);
+    }
 
     session[device].connected = false;
     session[device].allocated = false;
@@ -161,13 +167,13 @@ int lxi_disconnect(int device)
 int lxi_send(int device, char *message, int length, int timeout)
 {
     Device_WriteParms write_params;
-    Device_WriteResp *write_resp;
+    Device_WriteResp write_resp;
     struct timeval tv;
 
     // Configure VXI11 write parameters
-    write_params.lid = session[device].link_resp->lid;
     write_params.lock_timeout = 0;
     write_params.io_timeout = 0;
+    write_params.lid = session[device].link_resp.lid;
     write_params.flags = 0x9;
     write_params.data.data_len = length;
     write_params.data.data_val = message;
@@ -176,59 +182,72 @@ int lxi_send(int device, char *message, int length, int timeout)
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
     clnt_control(session[device].rpc_client, CLSET_TIMEOUT, (char *) &tv);
-
     // Send
-    write_resp = device_write_1(&write_params, session[device].rpc_client);
-    if (write_resp == NULL)
+    if (device_write_1(&write_params, &write_resp, session[device].rpc_client) != RPC_SUCCESS)
         return LXI_ERROR;
 
     // Return number of bytes sent
-    return write_resp->size;
+    return write_resp.size;
 }
 
 int lxi_receive(int device, char *message, int length, int timeout)
 {
     Device_ReadParms read_params;
-    Device_ReadResp *read_resp;
+    Device_ReadResp read_resp;
     int offset = 0;
     int response_length = 0;
     struct timeval tv;
 
     // Configure VXI11 read parameters
-    read_params.lid = session[device].link_resp->lid;
     read_params.lock_timeout = 0;
     read_params.io_timeout = 0;
-    read_params.flags = 0x9;
-    read_params.termChar = '\n';
+    read_params.lid = session[device].link_resp.lid;
+    read_params.flags = 0;
+    read_params.termChar = 0;
     read_params.requestSize = length;
 
     // Configure client timeout
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
     clnt_control(session[device].rpc_client, CLSET_TIMEOUT, (char *) &tv);
-
     // Receive until done
     do
     {
-        read_resp = device_read_1(&read_params, session[device].rpc_client);
-        if (read_resp == NULL)
+        // Prepare for (repeated) read operation
+        memset(&read_resp, 0, sizeof(read_resp));
+        read_resp.data.data_val = message + offset;
+        read_params.requestSize = length - offset;
+
+        if (device_read_1(&read_params, &read_resp, session[device].rpc_client) != RPC_SUCCESS)
             return LXI_ERROR;
 
-        if (read_resp->data.data_len > 0)
+        if (read_resp.error != 0)
         {
-            response_length += read_resp->data.data_len;
+            printf("Error: Read error (response error code %d)\n", (int) read_resp.error);
+            return LXI_ERROR;
+        }
+
+        if (read_resp.data.data_len > 0)
+        {
+            response_length += read_resp.data.data_len;
 
             // Return error if provided receive message buffer is too small
             if (response_length > length)
+            {
+                printf("Error: Read error (receive message buffer too small)\n");
                 return LXI_ERROR;
+            }
 
-            memcpy(message+offset, read_resp->data.data_val, read_resp->data.data_len);
-            offset += read_resp->data.data_len;
+            offset += read_resp.data.data_len;
         }
         else
             return LXI_ERROR;
 
-    } while (read_resp->reason == 0);
+        // Stop if we have reached end of receive operation
+        if ((read_resp.reason & RECEIVE_END_BIT) || (read_resp.reason & RECEIVE_TERM_CHAR_BIT))
+            break;
+
+    } while (read_resp.reason == 0);
 
     // Return number of bytes received
     return response_length;

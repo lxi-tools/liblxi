@@ -26,5 +26,5 @@ liblxi_la_CFLAGS = -I$(top_srcdir)/src/include
 liblxi_la_LDFLAGS = -version-info $(LIBLXI_LT_VERSION) -init,init
 
 vxi11core_clnt.c vxi11core_xdr.c include/vxi11core.h:
-	rpcgen vxi11core.rpcl
+	rpcgen -M vxi11core.rpcl
 	mv vxi11core.h include
