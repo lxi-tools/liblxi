@@ -171,17 +171,13 @@ int lxi_send(int device, char *message, int length, int timeout)
     struct timeval tv;
 
     // Configure VXI11 write parameters
-    write_params.lock_timeout = 0;
-    write_params.io_timeout = 0;
     write_params.lid = session[device].link_resp.lid;
+    write_params.lock_timeout = timeout;
+    write_params.io_timeout = timeout;
     write_params.flags = 0x9;
     write_params.data.data_len = length;
     write_params.data.data_val = message;
 
-    // Configure client timeout
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    clnt_control(session[device].rpc_client, CLSET_TIMEOUT, (char *) &tv);
     // Send
     if (device_write_1(&write_params, &write_resp, session[device].rpc_client) != RPC_SUCCESS)
         return LXI_ERROR;
@@ -199,17 +195,13 @@ int lxi_receive(int device, char *message, int length, int timeout)
     struct timeval tv;
 
     // Configure VXI11 read parameters
-    read_params.lock_timeout = 0;
-    read_params.io_timeout = 0;
     read_params.lid = session[device].link_resp.lid;
+    read_params.lock_timeout = timeout;
+    read_params.io_timeout = timeout;
     read_params.flags = 0;
     read_params.termChar = 0;
     read_params.requestSize = length;
 
-    // Configure client timeout
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    clnt_control(session[device].rpc_client, CLSET_TIMEOUT, (char *) &tv);
     // Receive until done
     do
     {
