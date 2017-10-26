@@ -43,11 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The following files:
 
  src/vxi11core.rpcl
- src/vxi11core_clnt.c
- src/include/vxi11core.h
- src/vxi11core.rpcl
- src/vxi11core_svc.c
- src/vxi11core_xdr.c
+ src/vxi11core_clnt.c     (automatically generated during build)
+ src/include/vxi11core.h  (automatically generated during build)
+ src/vxi11core.rpcl       (automatically generated during build)
+ src/vxi11core_svc.c      (automatically generated during build)
+ src/vxi11core_xdr.c      (automatically generated during build)
 
 Are covered by this EPICS license:
 
