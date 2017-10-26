@@ -5,14 +5,14 @@
 int main()
 {
     char response[65536];
-    int device, length, timeout = 1000;
+    int device, length, timeout = 3000;
     char *command = "*IDN?";
 
     // Initialize LXI library
     lxi_init();
 
     // Connect LXI device
-    device = lxi_connect("10.42.0.42");
+    device = lxi_connect("10.42.0.42", NULL, timeout);
 
     // Send SCPI command
     lxi_send(device, command, strlen(command), timeout);
