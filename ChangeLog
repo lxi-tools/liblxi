@@ -1,5 +1,34 @@
 
-=== liblxi v1.1 ===
+=== liblxi v1.2 ===
+
+
+Changes since liblxi v1.1:
+
+ * Added AUTHORS file
+
+ * Update COPYING
+
+ * Update README
+
+ * Update connect test
+
+ * Improve lxi_connect() with device name and timeout
+
+ * Make timeout error message human readable
+
+   Lets explain the most common error, that is timeout, in a human readable
+   format.
+
+ * Fix timeout handling
+
+ * Use thread-safe version of VXI11 function calls
+
+ * Autogenerate VXI11 RPC functions
+
+   Automatically generate VXI11 RPC functions instead of using bundled or
+   system provided VXI11 library. This allows us to generate thread-safe
+   versions of the VXI11 RPC functions in the future.
+
 
 
 Changes since liblxi v1.0:
