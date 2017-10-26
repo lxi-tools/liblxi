@@ -39,13 +39,7 @@
 #include <ifaddrs.h>
 #include <rpc/rpc.h>
 #include <pthread.h>
-
-#ifdef USE_INTERNAL_VXI
 #include "vxi11core.h"
-#else
-#include "vxi.h"
-#endif
-
 #include <lxi.h>
 
 #define RPC_PORT 111

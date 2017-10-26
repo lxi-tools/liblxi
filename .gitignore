@@ -18,6 +18,10 @@ src/include/config.h
 src/include/config.h.in
 src/include/config.h.in~
 src/include/stamp-h1
+src/include/vxi11core.h
+src/vxi11core_clnt.c             
+src/vxi11core_svc.c              
+src/vxi11core_xdr.c 
 *.swp
 *.asc
 /ar-lib
