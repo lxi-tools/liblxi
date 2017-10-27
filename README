@@ -74,9 +74,9 @@
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
 
 
-5. Development
+5. Contributing
 
-    This is open source. If you want to help out with the project please join
+    liblxi is open source. If you want to help out with the project please join
     in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
 
     Please use the github issue tracker and pull request features.
@@ -84,7 +84,7 @@
 
 6. Website
 
-    Visit http://lxi.github.io
+    Visit https://lxi.github.io
 
 
 7. License
