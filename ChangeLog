@@ -1,5 +1,13 @@
 
-=== liblxi v1.2 ===
+=== liblxi v1.3 ===
+
+
+Changes since liblxi v1.2:
+
+ * Fix building with multiple jobs (make -jN, N>1)
+
+ * Update README
+
 
 
 Changes since liblxi v1.1:
