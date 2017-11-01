@@ -97,18 +97,52 @@ int tcp_disconnect(void *data)
 
 int tcp_send(void *data, char *message, int length, int timeout)
 {
+    int status;
+    struct timeval tv;
+    fd_set wdfs;
+
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
-    return write(tcp_data->server_socket, message, length);
+    // Set timeout
+    tv.tv_sec = 0;
+    tv.tv_usec = timeout * 1000;
+
+    FD_ZERO(&wdfs);
+    FD_SET(tcp_data->server_socket, &wdfs);
+
+    status = select(tcp_data->server_socket + 1, NULL, &wdfs, NULL, &tv);
+    if (status == -1)
+        return -1;
+    else if (status)
+        return write(tcp_data->server_socket, message, length);
+    else
+        printf("Error: Timeout\n");
+
+    return -1;
 }
 
 int tcp_receive(void *data, char *message, int length, int timeout)
 {
-    int size;
+    int status;
+    struct timeval tv;
+    fd_set rdfs;
 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
-    size = read(tcp_data->server_socket, message, length);
+    // Set timeout
+    tv.tv_sec = 0;
+    tv.tv_usec = timeout * 1000;
 
-    return size;
+    FD_ZERO(&rdfs);
+    FD_SET(tcp_data->server_socket, &rdfs);
+
+    status = select(tcp_data->server_socket + 1, &rdfs, NULL, NULL, &tv);
+    if (status == -1)
+        return -1;
+    else if (status)
+        return read(tcp_data->server_socket, message, length);
+    else
+        printf("Error: Timeout\n");
+
+    return -1;
 }
