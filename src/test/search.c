@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <lxi.h>
 
+// Example - Search for LXI instruments (VXI11 discovery)
+
 void broadcast(char *address, char *interface)
 {
     printf("Broadcasting on interface %s\n", interface);

@@ -2,6 +2,8 @@
 #include <string.h>
 #include <lxi.h>
 
+// Example - send SCPI to instrument using VXI11 protocol
+
 int main()
 {
     char response[65536];
@@ -12,7 +14,7 @@ int main()
     lxi_init();
 
     // Connect LXI device
-    device = lxi_connect("10.42.0.42", NULL, timeout);
+    device = lxi_connect("10.42.0.42", 0, NULL, timeout, VXI11);
 
     // Send SCPI command
     lxi_send(device, command, strlen(command), timeout);
