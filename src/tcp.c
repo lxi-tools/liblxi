@@ -47,10 +47,10 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
-    // Create a stream socket using TCP/IP
+    // Create a TCP/IP stream socket
     if ((tcp_data->server_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
-        printf("Error: socket() call failed");
+        printf("Error: socket() call failed\n");
         return -1;
     }
 
@@ -67,7 +67,7 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
 
         if (host == (struct hostent *) NULL)
         {
-            printf("Error: Host not found");
+            printf("Error: Host not found\n");
             close(tcp_data->server_socket);
             return -1;
         }
@@ -75,15 +75,13 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
         memcpy(&server_address.sin_addr, host->h_addr, sizeof(server_address.sin_addr));
     }
 
-    // Establish connection to the server
+    // Establish connection to server
     if (connect(tcp_data->server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
     {
-        printf("Error: connect() call failed");
+        printf("Error: connect() call failed\n");
         close(tcp_data->server_socket);
         return -1;
     }
-    else
-        printf("Connection established successfully\n");
 
     return 0;
 }
@@ -101,9 +99,6 @@ int tcp_send(void *data, char *message, int length, int timeout)
 {
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
-    // Debug
-    printf("Sending TCP data (%4d bytes):  \n", length);
-
     return write(tcp_data->server_socket, message, length);
 }
 
@@ -114,10 +109,6 @@ int tcp_receive(void *data, char *message, int length, int timeout)
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
     size = read(tcp_data->server_socket, message, length);
-
-    // Debug
-    if (size)
-        printf("Received TCP data (%4d bytes): \n", size);
 
     return size;
 }

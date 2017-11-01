@@ -79,7 +79,7 @@ int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t
         goto error_session;
     }
 
-    // Set up protocol functions
+    // Set up protocol backend
     switch (protocol)
     {
         case VXI11:
@@ -88,7 +88,7 @@ int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t
             session[i].receive = vxi11_receive;
             session[i].disconnect = vxi11_disconnect;
             session[i].data = malloc(sizeof(vxi11_data_t));
-			break;
+            break;
         case RAW:
             session[i].connect = tcp_connect;
             session[i].send = tcp_send;

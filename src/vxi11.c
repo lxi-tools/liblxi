@@ -202,7 +202,7 @@ static int get_device_id(char *address, char *id, int timeout)
 {
     int length;
     int device;
-	vxi11_data_t data;
+    vxi11_data_t data;
 
     device = vxi11_connect(&data, address, 0, NULL, timeout);
     if (device < 0)
