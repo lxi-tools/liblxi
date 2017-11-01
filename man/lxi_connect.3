@@ -7,7 +7,7 @@ lxi_connect \- connect to LXI device
 .PP
 .B #include <lxi.h>
 
-.B int lxi_connect(char *address, char *name, int timeout);
+.B int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
 
 .SH "DESCRIPTION"
 .PP
@@ -22,6 +22,17 @@ at IP address pointed to by
 If
 .I name
 is NULL then the default name "inst0" will be used.
+
+.PP
+.I protocol
+is either VXI11 or RAW.
+
+.PP
+If
+.I protocol
+is RAW then
+.I port
+will be used as destination port.
 
 .PP
 The

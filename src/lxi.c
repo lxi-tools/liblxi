@@ -32,45 +32,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
-#include <ifaddrs.h>
-#include <rpc/rpc.h>
 #include <pthread.h>
-#include "vxi11core.h"
 #include <lxi.h>
-
-#define RPC_PORT               111
-#define SESSIONS_MAX           256
-#define ID_REQ_STRING    "*IDN?\n"
-
-#define RECEIVE_END_BIT       0x04  // Receive end indicator
-#define RECEIVE_TERM_CHAR_BIT 0x02  // Receive termination character
-
-struct session_t
-{
-    bool allocated;
-    bool connected;
-    CLIENT *rpc_client;
-    Create_LinkResp link_resp;
-};
+#include "session.h"
+#include "vxi11.h"
+#include "tcp.h"
 
 static struct session_t session[SESSIONS_MAX] = {};
 static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-// Payload representing GETPORT RPC call
-static char rpc_GETPORT_msg[] =
-{
-    0x00, 0x00, 0x03, 0xe8, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x86, 0xa0,
-    0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x06, 0x07, 0xaf, 0x00, 0x00, 0x00, 0x01,
-    0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
-};
 
 int lxi_init(void)
 {
@@ -86,9 +55,8 @@ int lxi_init(void)
     return LXI_OK;
 }
 
-int lxi_connect(char *address, char *name, int timeout)
+int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol)
 {
-    Create_LinkParms link_params;
     bool session_available = false;
     int i;
 
@@ -111,23 +79,36 @@ int lxi_connect(char *address, char *name, int timeout)
         goto error_session;
     }
 
-    // Set up client
-    session[i].rpc_client = clnt_create(address, DEVICE_CORE, DEVICE_CORE_VERSION, "tcp");
-    if (session[i].rpc_client == NULL)
-        goto error_client;
+    // Set up protocol functions
+    switch (protocol)
+    {
+        case VXI11:
+            session[i].connect = vxi11_connect;
+            session[i].send = vxi11_send;
+            session[i].receive = vxi11_receive;
+            session[i].disconnect = vxi11_disconnect;
+            session[i].data = malloc(sizeof(vxi11_data_t));
+			break;
+        case RAW:
+            session[i].connect = tcp_connect;
+            session[i].send = tcp_send;
+            session[i].receive = tcp_receive;
+            session[i].disconnect = tcp_disconnect;
+            session[i].data = malloc(sizeof(tcp_data_t));
+            break;
+        case HISLIP:
+            // Error: Not yet supported
+            goto error_protocol;
+            break;
+        default:
+            // Error: Unknown protocol
+            goto error_protocol;
+            break;
+    }
 
-    // Set up link
-    link_params.clientId = (unsigned long) session[i].rpc_client;
-    link_params.lock_timeout = timeout;
-    link_params.lockDevice = timeout;
-
-    if (name == NULL)
-        link_params.device = "inst0"; // Use default device name
-    else
-        link_params.device = name; // Use provided device name
-
-    if (create_link_1(&link_params, &session[i].link_resp, session[i].rpc_client) != RPC_SUCCESS)
-        goto error_link;
+    // Connect
+    if (session[i].connect(session[i].data, address, port, name, timeout) != 0)
+        goto error_connect;
 
     session[i].allocated = true;
     session[i].connected = true;
@@ -137,9 +118,8 @@ int lxi_connect(char *address, char *name, int timeout)
     // Return session handle
     return i;
 
-error_link:
-    clnt_destroy(session[i].rpc_client);
-error_client:
+error_connect:
+error_protocol:
 error_session:
     pthread_mutex_unlock(&session_mutex);
     return LXI_ERROR;
@@ -147,19 +127,17 @@ error_session:
 
 int lxi_disconnect(int device)
 {
-    Device_Error device_error;
-
     if (device > SESSIONS_MAX)
         return LXI_ERROR;
 
     pthread_mutex_lock(&session_mutex);
 
-    // Free resources
+    // Disconnect
     if (session[device].connected)
-    {
-        destroy_link_1(&session[device].link_resp.lid, &device_error, session[device].rpc_client);
-        clnt_destroy(session[device].rpc_client);
-    }
+        session[device].disconnect(session[device].data);
+
+    // Free resources
+    free(session[device].data);
 
     session[device].connected = false;
     session[device].allocated = false;
@@ -171,230 +149,33 @@ int lxi_disconnect(int device)
 
 int lxi_send(int device, char *message, int length, int timeout)
 {
-    Device_WriteParms write_params;
-    Device_WriteResp write_resp;
-
-    // Configure VXI11 write parameters
-    write_params.lid = session[device].link_resp.lid;
-    write_params.lock_timeout = timeout;
-    write_params.io_timeout = timeout;
-    write_params.flags = 0x9;
-    write_params.data.data_len = length;
-    write_params.data.data_val = message;
+    int bytes_sent;
 
     // Send
-    if (device_write_1(&write_params, &write_resp, session[device].rpc_client) != RPC_SUCCESS)
+    bytes_sent = session[device].send(session[device].data, message, length, timeout);
+    if (bytes_sent < 0)
         return LXI_ERROR;
 
     // Return number of bytes sent
-    return write_resp.size;
+    return bytes_sent;
 }
 
 int lxi_receive(int device, char *message, int length, int timeout)
 {
-    Device_ReadParms read_params;
-    Device_ReadResp read_resp;
-    int offset = 0;
-    int response_length = 0;
+    int bytes_received;
 
-    // Configure VXI11 read parameters
-    read_params.lid = session[device].link_resp.lid;
-    read_params.lock_timeout = timeout;
-    read_params.io_timeout = timeout;
-    read_params.flags = 0;
-    read_params.termChar = 0;
-    read_params.requestSize = length;
-
-    // Receive until done
-    do
-    {
-        // Prepare for (repeated) read operation
-        memset(&read_resp, 0, sizeof(read_resp));
-        read_resp.data.data_val = message + offset;
-        read_params.requestSize = length - offset;
-
-        if (device_read_1(&read_params, &read_resp, session[device].rpc_client) != RPC_SUCCESS)
-            return LXI_ERROR;
-
-        if (read_resp.error != 0)
-        {
-            if (read_resp.error == 15)
-                printf("Error: Read error (timeout)\n"); // Most common error explained
-            else
-                printf("Error: Read error (response error code %d)\n", (int) read_resp.error);
-            return LXI_ERROR;
-        }
-
-        if (read_resp.data.data_len > 0)
-        {
-            response_length += read_resp.data.data_len;
-
-            // Return error if provided receive message buffer is too small
-            if (response_length > length)
-            {
-                printf("Error: Read error (receive message buffer too small)\n");
-                return LXI_ERROR;
-            }
-
-            offset += read_resp.data.data_len;
-        }
-        else
-            return LXI_ERROR;
-
-        // Stop if we have reached end of receive operation
-        if ((read_resp.reason & RECEIVE_END_BIT) || (read_resp.reason & RECEIVE_TERM_CHAR_BIT))
-            break;
-
-    } while (read_resp.reason == 0);
+    // Receive
+    bytes_received = session[device].receive(session[device].data, message, length, timeout);
+    if (bytes_received < 0)
+        return LXI_ERROR;
 
     // Return number of bytes received
-    return response_length;
-}
-
-static int get_device_id(char *address, char *id, int timeout)
-{
-    int length;
-    int device;
-
-    device = lxi_connect(address, NULL, timeout);
-    if (device < 0)
-        goto error_connect;
-
-    length = lxi_send(device, ID_REQ_STRING, strlen(ID_REQ_STRING), timeout);
-    if (length < 0)
-        goto error_send;
-
-    length = lxi_receive(device, id, LXI_ID_LENGTH_MAX, timeout);
-    if (length < 0)
-        goto error_receive;
-
-    lxi_disconnect(device);
-
-    // Strip newline
-    if (id[strlen(id)-1] == '\n')
-        id[strlen(id)-1] = 0;
-
-    return LXI_OK;
-
-error_receive:
-error_send:
-    lxi_disconnect(device);
-error_connect:
-    return LXI_ERROR;
-}
-
-static int discover_devices(struct sockaddr_in *broadcast_addr, struct lxi_info_t *info, int timeout)
-{
-    int sockfd;
-    struct sockaddr_in send_addr;
-    struct sockaddr_in recv_addr;
-    int broadcast = true;
-    int count;
-    char buffer[LXI_ID_LENGTH_MAX];
-    char id[LXI_ID_LENGTH_MAX];
-    struct timeval tv;
-    socklen_t addrlen;
-
-    // Create a socket
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd == -1)
-    {
-        perror("Socket creation error");
-        return LXI_ERROR;
-    }
-
-    // Set socket options - broadcast
-    if((setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
-                    &broadcast,sizeof (broadcast))) == -1)
-    {
-        perror("setsockopt - SO_SOCKET");
-        goto socket_options_error;
-    }
-
-    // Set socket options - timeout
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-    if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
-    {
-        perror("setsockopt - SO_RCVTIMEO");
-        goto socket_options_error;
-    }
-
-    // Senders address
-    send_addr.sin_family = AF_INET;
-    send_addr.sin_addr.s_addr = INADDR_ANY;
-    send_addr.sin_port = 0;     // 0 = random sender port
-
-    // Bind socket to address
-    bind(sockfd, (struct sockaddr*)&send_addr, sizeof(send_addr));
-
-    // Receivers address
-    recv_addr.sin_family = AF_INET;
-    recv_addr.sin_addr.s_addr = broadcast_addr->sin_addr.s_addr;
-    recv_addr.sin_port = htons(RPC_PORT);
-
-    // Broadcast RPC GETPORT message
-    sendto(sockfd, rpc_GETPORT_msg, sizeof(rpc_GETPORT_msg), 0,
-            (struct sockaddr*)&recv_addr, sizeof(recv_addr));
-
-    addrlen = sizeof(recv_addr);
-
-    // Go through received responses
-    do
-    {
-        count = recvfrom(sockfd, buffer, LXI_ID_LENGTH_MAX, 0,
-                (struct sockaddr*)&recv_addr, &addrlen);
-        if (count > 0)
-        {
-            // Add device if an LXI/SCPI ID string is returned
-            char *address = inet_ntoa(recv_addr.sin_addr);
-            if (get_device_id(address, id, timeout) == LXI_OK)
-            {
-                // Notify device found via callback
-                if (info->device != NULL)
-                    info->device(address, id);
-            }
-        }
-    } while (count > 0);
-
-    return LXI_OK;
-
-socket_options_error:
-    // Shutdown socket
-    shutdown(sockfd, SHUT_RDWR);
-
-    return LXI_ERROR;
+    return bytes_received;
 }
 
 int lxi_discover(struct lxi_info_t *info, int timeout)
 {
-    struct sockaddr_in *broadcast_addr;
-    struct ifaddrs *ifap;
-    int status;
-
-    // Go through available broadcast addresses
-    if (getifaddrs(&ifap) == 0)
-    {
-        struct ifaddrs *ifap_p = ifap;
-
-        while (ifap_p)
-        {
-            if ((ifap_p->ifa_addr) && (ifap_p->ifa_addr->sa_family == AF_INET))
-            {
-                broadcast_addr = (struct sockaddr_in *) ifap_p->ifa_broadaddr;
-
-                // Notify current broadcast address and network interface via callback
-                if (info->broadcast != NULL)
-                    info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
-
-                // Find LXI devices via broadcast address
-                status = discover_devices(broadcast_addr, info, timeout);
-
-            }
-            ifap_p = ifap_p->ifa_next;
-        }
-        freeifaddrs(ifap);
-    }
+    vxi11_discover(info, timeout);
 
     return LXI_OK;
 }

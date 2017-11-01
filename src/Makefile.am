@@ -10,7 +10,12 @@ nodist_liblxi_la_SOURCES = vxi11core_clnt.c    \
                            include/vxi11core.h
 
 liblxi_la_SOURCES = include/lxi.h \
-                    lxi.c
+                    include/session.h \
+                    include/vxi11.h \
+                    include/tcp.h \
+                    lxi.c \
+                    vxi11.c \
+                    tcp.c
 
 BUILT_SOURCES = vxi11core_clnt.c    \
                 vxi11core_xdr.c     \

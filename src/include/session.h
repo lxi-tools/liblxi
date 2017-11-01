@@ -28,30 +28,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LXI_H
-#define LXI_H
+#ifndef SESSION_H
+#define SESSION_H
 
-#define LXI_OK     0
-#define LXI_ERROR -1
+#include <stdbool.h>
+#include <lxi.h>
 
-struct lxi_info_t
+#define SESSIONS_MAX           256
+
+struct session_t
 {
-    void (*broadcast)(char *address, char *interface);
-    void (*device)(char *address, char *id);
+    bool allocated;
+    bool connected;
+    void *data;
+    int (*connect)(void *data, char *address, int port, char *name, int timeout);
+    int (*disconnect)(void *data);
+    int (*send)(void *data, char *message, int length, int timeout);
+    int (*receive)(void *data, char *message, int length, int timeout);
 };
-
-typedef enum
-{
-    VXI11,
-    RAW,
-    HISLIP
-} lxi_protocol_t;
-
-int lxi_init(void);
-int lxi_discover(struct lxi_info_t *info, int timeout);
-int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
-int lxi_send(int device, char *message, int length, int timeout);
-int lxi_receive(int device, char *message, int length, int timeout);
-int lxi_disconnect(int device);
 
 #endif
