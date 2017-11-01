@@ -30,7 +30,7 @@
 
     int lxi_init(void);
     int lxi_discover(struct lxi_info_t *info, int timeout);
-    int lxi_connect(char *address, char *name, int timeout);
+    int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
     int lxi_send(int device, char *message, int length, int timeout);
     int lxi_receive(int device, char *message, int length, int timeout);
     int lxi_disconnect(int device);
@@ -54,7 +54,7 @@
          lxi_init();
 
          // Connect to LXI device
-         device = lxi_connect("10.42.0.42", "inst0", timeout);
+         device = lxi_connect("10.42.0.42", 0, "inst0", timeout, VXI11);
 
          // Send SCPI command
          lxi_send(device, command, strlen(command), timeout);
@@ -71,7 +71,7 @@
     The example above prints the ID string of the LXI instrument. For example,
     a Rigol DS1104Z oscilloscope would respond:
     
-    RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1712064242,00.04.03
+    RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
 
 
 5. Contributing
