@@ -218,9 +218,15 @@ static int get_device_id(char *address, char *id, int timeout)
 
     vxi11_disconnect(&data);
 
-    // Strip newline
-    if (id[strlen(id)-1] == '\n')
-        id[strlen(id)-1] = 0;
+    // Terminate string
+    id[length] = 0;
+
+    if (length > 0)
+    {
+        // Strip newline
+        if (id[length-1] == '\n')
+            id[length-1] = 0;
+    }
 
     return 0;
 
