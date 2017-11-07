@@ -1,5 +1,28 @@
-
 === liblxi v1.3 ===
+
+
+Changes since liblxi v1.3:
+
+ * Fix discover output strings
+
+   Discovery of multiple LXI instruments revealed a bug in the id string
+   handling which results in garbled output strings. Adding missing string
+   termination fixes this.
+
+ * Add timeout handling for raw/TCP
+
+ * Update examples
+
+ * Cleanup
+
+ * Update README
+
+ * Add support for configurable protocol backends
+
+   Reworked the code to support configurable protocol backends. Currently
+   supported protocols include VXI11 and raw TCP. In the future support for
+   HiSlip can be added.
+
 
 
 Changes since liblxi v1.2:
