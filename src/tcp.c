@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "tcp.h"
+#include "error.h"
 
 int tcp_connect(void *data, char *address, int port, char *name, int timeout)
 {
@@ -50,7 +51,7 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
     // Create a TCP/IP stream socket
     if ((tcp_data->server_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
-        printf("Error: socket() call failed\n");
+        error_printf("socket() call failed\n");
         return -1;
     }
 
@@ -67,7 +68,7 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
 
         if (host == (struct hostent *) NULL)
         {
-            printf("Error: Host not found\n");
+            error_printf("Host not found\n");
             close(tcp_data->server_socket);
             return -1;
         }
@@ -78,7 +79,7 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout)
     // Establish connection to server
     if (connect(tcp_data->server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
     {
-        printf("Error: connect() call failed\n");
+        error_printf("connect() call failed\n");
         close(tcp_data->server_socket);
         return -1;
     }
@@ -116,7 +117,7 @@ int tcp_send(void *data, char *message, int length, int timeout)
     else if (status)
         return write(tcp_data->server_socket, message, length);
     else
-        printf("Error: Timeout\n");
+        error_printf("Timeout\n");
 
     return -1;
 }
@@ -142,7 +143,7 @@ int tcp_receive(void *data, char *message, int length, int timeout)
     else if (status)
         return read(tcp_data->server_socket, message, length);
     else
-        printf("Error: Timeout\n");
+        error_printf("Timeout\n");
 
     return -1;
 }

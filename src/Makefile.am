@@ -13,6 +13,7 @@ liblxi_la_SOURCES = include/lxi.h \
                     include/session.h \
                     include/vxi11.h \
                     include/tcp.h \
+                    include/error.h \
                     lxi.c \
                     vxi11.c \
                     tcp.c

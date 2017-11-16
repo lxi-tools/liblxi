@@ -34,6 +34,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <lxi.h>
+#include "error.h"
 #include "session.h"
 #include "vxi11.h"
 #include "tcp.h"
@@ -75,7 +76,7 @@ int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t
     // Return error if no session can be allocated
     if (session_available == false)
     {
-        printf("Error: Too many active sessions!\n");
+        error_printf("Too many active sessions!\n");
         goto error_session;
     }
 

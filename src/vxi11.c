@@ -39,6 +39,7 @@
 #include <rpc/rpc.h>
 #include "vxi11core.h"
 #include "vxi11.h"
+#include "error.h"
 
 #define RPC_PORT                111
 #define ID_REQ_STRING      "*IDN?\n"
@@ -156,9 +157,9 @@ int vxi11_receive(void *data, char *message, int length, int timeout)
         if (read_resp.error != 0)
         {
             if (read_resp.error == 15)
-                printf("Error: Read error (timeout)\n"); // Most common error explained
+                error_printf("Read error (timeout)\n"); // Most common error explained
             else
-                printf("Error: Read error (response error code %d)\n", (int) read_resp.error);
+                error_printf("Read error (response error code %d)\n", (int) read_resp.error);
             return -1;
         }
 
@@ -169,7 +170,7 @@ int vxi11_receive(void *data, char *message, int length, int timeout)
             // Return error if provided receive message buffer is too small
             if (response_length > length)
             {
-                printf("Error: Read error (receive message buffer too small)\n");
+                error_printf("Read error (receive message buffer too small)\n");
                 return -1;
             }
 
