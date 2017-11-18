@@ -7,34 +7,53 @@ lxi_discover \- search for LXI devices on network
 .PP
 .B #include <lxi.h>
 
-.B int lxi_discover(lxi_info_t *info, int timeout);
+.B int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type);
 
 .SH "DESCRIPTION"
 .PP
 The
 .BR lxi_discover()
-function searches for LXI devices on the local network by automatically
-broadcasting the GETPORT RPC call on the broadcast addresses of the available
-network interfaces. During the search operation results are returned by callbacks registered via the
+function searches for LXI devices or services on the local network using VXI-11
+or mDNS/DNS-SD respectively. Which discover
+.I type
+is used is defined as follows:
+
+.sp
+.nf
+typedef enum
+{
+    DISCOVER_VXI11,
+    DISCOVER_MDNS
+} lxi_discover_t;
+.fi
+
+.PP
+During the discover operation events and results are returned by callbacks
+registered via the
 .I info
 structure, defined as follows:
 .sp
 .nf
-struct lxi_info_t
+typedef struct
 {
     void (*broadcast)(char *address, char *interface);
     void (*device)(char *address, char *id);
-};
+    void (*service)(char *address, char *id, char *service, int port);
+} lxi_info_t;
 .fi
 
 .PP
 The
 .I broadcast
-callback is called whenever a new network interface is searched.
+callback is called whenever a new network interface is searched (DISCOVER_VXI11 only).
 
 The
 .I device
-callback is called whenever a new LXI device is found.
+callback is called whenever a new LXI device is found (DISCOVER_VXI11 only).
+
+The
+.I service
+callback is called whenever a new LXI service is found (DISCOVER_MDNS only).
 
 .PP
 The
@@ -53,7 +72,8 @@ if an error occurred.
 
 .SH EXAMPLE
 .PP
-The following example searches for LXI devices and prints the ID and IP addresses of found devices:
+The following example searches for LXI devices using VXI-11 and prints the ID
+and IP addresses of found devices:
 
 .nf
 #include <stdio.h>
@@ -71,7 +91,7 @@ void device(char *address, char *id)
 
 int main()
 {
-    struct lxi_info_t info;
+    lxi_info_t info;
 
     // Initialize LXI library
     lxi_init();
@@ -83,7 +103,7 @@ int main()
     printf("Searching for LXI devices - please wait...\\n");
 
     // Search for LXI devices, 1 second timeout
-    lxi_discover(&info, 1000);
+    lxi_discover(&info, 1000, DISCOVER_VXI11);
 
     return 0;
 }

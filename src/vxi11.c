@@ -238,7 +238,7 @@ error_connect:
     return -1;
 }
 
-static int discover_devices(struct sockaddr_in *broadcast_addr, struct lxi_info_t *info, int timeout)
+static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info, int timeout)
 {
     int sockfd;
     struct sockaddr_in send_addr;
@@ -321,7 +321,7 @@ socket_options_error:
     return -1;
 }
 
-int vxi11_discover(struct lxi_info_t *info, int timeout)
+int vxi11_discover(lxi_info_t *info, int timeout)
 {
     struct sockaddr_in *broadcast_addr;
     struct ifaddrs *ifap;

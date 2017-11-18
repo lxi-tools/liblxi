@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Martin Lund
+ * Copyright (c) 2017  Martin Lund
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,37 +28,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LXI_H
-#define LXI_H
+#include <lxi.h>
+#include "config.h"
 
-#define LXI_OK     0
-#define LXI_ERROR -1
-
-typedef struct
-{
-    void (*broadcast)(char *address, char *interface);
-    void (*device)(char *address, char *id);
-    void (*service)(char *address, char *id, char *service, int port);
-} lxi_info_t;
-
-typedef enum
-{
-    VXI11,
-    RAW,
-    HISLIP
-} lxi_protocol_t;
-
-typedef enum
-{
-    DISCOVER_VXI11,
-    DISCOVER_MDNS
-} lxi_discover_t;
-
-int lxi_init(void);
-int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type);
-int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
-int lxi_send(int device, char *message, int length, int timeout);
-int lxi_receive(int device, char *message, int length, int timeout);
-int lxi_disconnect(int device);
-
+#ifdef HAVE_AVAHI
+#include "avahi.h"
 #endif
+
+int mdns_discover(lxi_info_t *info, int timeout)
+{
+
+#ifdef HAVE_AVAHI
+    avahi_discover(info, timeout);
+#endif
+
+    return 0;
+}
+

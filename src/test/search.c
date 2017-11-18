@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <lxi.h>
 
-// Example - Search for LXI instruments (VXI11 discovery)
+// Example - Search for LXI instruments using VXI-11 discovery
 
 void broadcast(char *address, char *interface)
 {
@@ -15,7 +15,7 @@ void device(char *address, char *id)
 
 int main()
 {
-    struct lxi_info_t info;
+    lxi_info_t info;
 
     // Initialize LXI library
     lxi_init();
@@ -27,7 +27,7 @@ int main()
     printf("Searching for LXI devices - please wait...\n\n");
 
     // Search for LXI devices, 1 second timeout
-    lxi_discover(&info, 1000);
+    lxi_discover(&info, 1000, DISCOVER_VXI11);
 
     return 0;
 }

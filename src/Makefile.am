@@ -14,9 +14,16 @@ liblxi_la_SOURCES = include/lxi.h \
                     include/vxi11.h \
                     include/tcp.h \
                     include/error.h \
+                    include/mdns.h \
                     lxi.c \
                     vxi11.c \
-                    tcp.c
+                    tcp.c \
+                    mdns.c
+
+if HAVE_AVAHI
+liblxi_la_SOURCES += avahi.c \
+                     include/avahi.h
+endif
 
 BUILT_SOURCES = vxi11core_clnt.c    \
                 vxi11core_xdr.c     \
@@ -30,6 +37,9 @@ CLEANFILES = vxi11core_clnt.c    \
 liblxi_la_CFLAGS = -I$(top_srcdir)/src/include
 
 liblxi_la_LDFLAGS = -version-info $(LIBLXI_LT_VERSION) -init,init
+if HAVE_AVAHI
+liblxi_la_LDFLAGS += -lavahi-client -lavahi-common
+endif
 
 .NOTPARALLEL:
 vxi11core_clnt.c vxi11core_xdr.c include/vxi11core.h:

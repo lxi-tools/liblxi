@@ -38,6 +38,7 @@
 #include "session.h"
 #include "vxi11.h"
 #include "tcp.h"
+#include "mdns.h"
 
 static struct session_t session[SESSIONS_MAX] = {};
 static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -174,9 +175,20 @@ int lxi_receive(int device, char *message, int length, int timeout)
     return bytes_received;
 }
 
-int lxi_discover(struct lxi_info_t *info, int timeout)
+int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type)
 {
-    vxi11_discover(info, timeout);
+    switch (type)
+    {
+        case DISCOVER_VXI11:
+            vxi11_discover(info, timeout);
+            break;
+        case DISCOVER_MDNS:
+            mdns_discover(info, timeout);
+            break;
+        default:
+            error_printf("Unknown discover type (%d)\n", type);
+            return LXI_ERROR;
+    }
 
     return LXI_OK;
 }

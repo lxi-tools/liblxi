@@ -31,9 +31,23 @@ AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Required rpc headers not found])])
 # Check for rpcgen tool
 AC_PATH_PROG([RPCGEN], [rpcgen])
 AC_ARG_VAR([RPCGEN], [RPC compiler command])
-if test z$RPCGEN = z ; then
+if test x$RPCGEN = x ; then
     AC_MSG_ERROR([could not locate rpcgen])
 fi
+
+# Check for Avahi (mDNS/DNS-SD implementation)
+AC_CHECK_LIB([avahi-client], [avahi_client_new], [have_avahi_client=yes], [])
+AC_CHECK_LIB([avahi-common], [avahi_simple_poll_new], [have_avahi_common=yes], [])
+if test x$have_avahi_client = xyes ; then
+    if test x$have_avahi_common = xyes ; then
+        AC_DEFINE([HAVE_AVAHI],[1],[Define if avahi libraries are available.])
+        have_avahi=yes
+    fi
+fi
+if test x$have_avahi = x ; then
+    AC_MSG_WARN([Avahi not found - mDNS discover feature will be disabled])
+fi
+AM_CONDITIONAL([HAVE_AVAHI],[test "x$have_avahi" == "xyes"])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])

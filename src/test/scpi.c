@@ -2,7 +2,7 @@
 #include <string.h>
 #include <lxi.h>
 
-// Example - send SCPI to instrument using VXI11 protocol
+// Example - send SCPI to instrument using VXI-11 protocol
 
 int main()
 {
