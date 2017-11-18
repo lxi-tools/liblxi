@@ -1,4 +1,20 @@
-=== liblxi v1.4 ===
+=== liblxi v1.5 ===
+
+
+Changes since liblxi v1.4:
+
+ * Add support for mDNS/DNS-SD discovery
+
+   Add parameter to lxi_discover() so it is possible to select discovery
+   using VXI-11 or mDNS/DNS-SD.
+
+   If detected available, Avahi is used as the mDNS/DNS-SD backend
+   implementation.
+
+ * Print errors to stderr
+
+ * Update README
+
 
 
 Changes since liblxi v1.3:
