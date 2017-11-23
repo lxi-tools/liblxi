@@ -120,3 +120,10 @@ liblxi includes code covered by the following licenses:
  * EPICS Open software license
 
 For license details please see the COPYING file.
+
+
+## 8. Authors
+
+Created by Martin Lund \<martin.lund@keep-it-simple.com>
+
+See the AUTHORS file for full list of authors.
