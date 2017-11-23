@@ -97,7 +97,8 @@ https://lxi.github.io to see list of supported distributions.
 ## 5. Contributing
 
 liblxi is open source. If you want to help out with the project please join in.
-Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
+
+All contributions (bug reports, code, doc, ideas, etc.) are welcome.
 
 Please use the github issue tracker and pull request features.
 
