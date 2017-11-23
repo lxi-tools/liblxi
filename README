@@ -1,49 +1,40 @@
 
-=== LXI Library (liblxi) ===
+=== liblxi ===
 
 
 1. Introduction
 
-    The LXI library (liblxi) is a library for GNU/Linux systems which offers a
-    simple API for communicating with LXI compatible instruments. The API
-    allows applications to discover instruments on your network, send SCPI
-    commands, and receive responses.
+    liblxi is a library for GNU/Linux systems which offers a simple API for
+    communicating with LXI compatible instruments. The API allows applications
+    to discover instruments on your network, send SCPI commands, and receive
+    responses.
 
-    Currently the library supports VXI11/TCP and RAW/TCP connections. Future
+    Currently the library supports VXI-11/TCP and RAW/TCP connections. Future
     work include adding support for the newer and more efficient HiSlip
     protocol which is used by next generation LXI instruments.
 
-    The library is based on the VXI11 RPC protocol implementation which is part
-    of the asynDriver EPICS module, which, at time of writing, is available
-    from: http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
+    The library is based on the VXI-11 RPC protocol implementation which is
+    part of the asynDriver EPICS module, which, at time of writing, is
+    available from: http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
 
 
-2. Installation
-
-    Install steps:
-
-    $ ./configure
-    $ make
-    $ make install
-
-
-3. The liblxi API
+2. The liblxi API
 
     The API is small and simple. It includes functions required for discovering
     and communicating SCPI messages with LXI devices:
 
-    int lxi_init(void);
-    int lxi_discover(struct lxi_info_t *info, int timeout, lxi_discover_t type);
-    int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
-    int lxi_send(int device, char *message, int length, int timeout);
-    int lxi_receive(int device, char *message, int length, int timeout);
-    int lxi_disconnect(int device);
+     int lxi_init(void);
+     int lxi_discover(struct lxi_info_t *info, int timeout, lxi_discover_t type);
+     int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
+     int lxi_send(int device, char *message, int length, int timeout);
+     int lxi_receive(int device, char *message, int length, int timeout);
+     int lxi_disconnect(int device);
 
     Note: type is DISCOVER_VXI11 or DISCOVER_MDNS
     Note: protocol is VXI11 or RAW
 
 
-4. API usage
+3. API usage
 
     Here is a simple code example on how to use the liblxi API:
 
@@ -78,7 +69,25 @@
     The example above prints the ID string of the LXI instrument. For example,
     a Rigol DS1104Z oscilloscope would respond:
     
-    RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
+     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
+
+
+4. Installation
+
+    The latest release version can be downloaded from https://lxi.github.io
+
+4.1 Installation using release tarball
+
+    Install steps:
+
+     $ ./configure
+     $ make
+     $ make install
+
+4.2 Installation using package
+
+    liblxi comes prepackaged for various GNU/Linux distributions. Visit
+    https://lxi.github.io to see list of supported distributions.
 
 
 5. Contributing
@@ -87,6 +96,9 @@
     in. Any contributions (bug reports, code, doc, ideas, etc.) are welcome.
 
     Please use the github issue tracker and pull request features.
+
+    Also, if you find this free open source software useful please consider
+    making a donation: https://www.paypal.me/lundmar
 
 
 6. Website
@@ -102,4 +114,3 @@
      * EPICS Open software license
 
     For license details please see the COPYING file.
-
