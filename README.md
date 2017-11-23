@@ -81,6 +81,7 @@ The latest release version can be downloaded from https://lxi.github.io
     
 ### 4.1 Installation using release tarball
 
+Install steps:
 ```
     $ ./configure
     $ make
