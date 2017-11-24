@@ -13,7 +13,7 @@ LT_INIT
 # The string is of the form C:R:A (Current, Revision, Age).
 # - If interfaces have been changed or added, but binary compatibility has
 #   been preserved, change to C+1:0:A+1
-# - If binary compatibility has been broken (eg. removed or changed interfaces)
+# - If binary compatibility has been broken (e.g. removed or changed interfaces)
 #   change to C+1:0:0
 # - If the interface is the same as the previous version, change to C:R+1:A
 LIBLXI_LT_VERSION=1:0:0
