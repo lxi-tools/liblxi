@@ -76,7 +76,7 @@
 
 4. Installation
 
-    The latest release version can be downloaded from https://lxi.github.io
+    The latest release version can be downloaded from https://lxi-tools.github.io
 
 4.1 Installation using release tarball
 
@@ -89,7 +89,7 @@
 4.2 Installation using package
 
     liblxi comes prepackaged for various GNU/Linux distributions. Visit
-    https://lxi.github.io to see list of supported distributions.
+    https://lxi-tools.github.io to see list of supported distributions.
 
 
 5. Contributing
@@ -107,7 +107,7 @@
 
 6. Website
 
-    Visit https://lxi.github.io
+    Visit https://lxi-tools.github.io
 
 
 7. License

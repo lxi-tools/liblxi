@@ -1,6 +1,6 @@
 # liblxi
 
-[![Build Status](https://travis-ci.org/lxi/liblxi.svg?branch=master)](https://travis-ci.org/lxi/liblxi)
+[![Build Status](https://travis-ci.org/lxi-tools/liblxi.svg?branch=master)](https://travis-ci.org/lxi-tools/liblxi)
 
 ## 1. Introduction
 
@@ -79,7 +79,7 @@ See src/test for more examples.
 
 ## 4. Installation
 
-The latest release version can be downloaded from https://lxi.github.io
+The latest release version can be downloaded from https://lxi-tools.github.io
     
 ### 4.1 Installation using release tarball
 
@@ -93,7 +93,7 @@ Install steps:
 ### 4.2 Installation using package
 
 liblxi comes prepackaged for various GNU/Linux distributions. Visit
-https://lxi.github.io to see list of supported distributions.
+https://lxi-tools.github.io to see list of supported distributions.
 
 
 ## 5. Contributing
@@ -112,7 +112,7 @@ a donation:
 
 ## 6. Website
 
-Visit https://lxi.github.io
+Visit https://lxi-tools.github.io
 
 
 ## 7. License
