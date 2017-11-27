@@ -74,6 +74,8 @@ Rigol DS1104Z oscilloscope would respond:
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
 ```
 
+See src/test for more examples.
+
 
 ## 4. Installation
 
