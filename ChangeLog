@@ -1,4 +1,20 @@
-=== liblxi v1.6 ===
+=== liblxi v1.7 ===
+
+
+Changes since liblxi v1.6:
+
+ * Update to new URL
+
+ * Update README
+
+ * Update AUTHORS
+
+ * Use HTTPS in the configure script
+
+Jakub Wilk:
+
+ * Fix typos
+
 
 
 Changes since liblxi v1.5:
