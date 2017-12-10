@@ -72,8 +72,8 @@ int vxi11_connect(void *data, char *address, int port, char *name, int timeout)
 
     // Set up link
     link_params.clientId = (unsigned long) vxi11_data->rpc_client;
-    link_params.lock_timeout = timeout;
-    link_params.lockDevice = timeout;
+    link_params.lockDevice = 0; // No lock
+    link_params.lock_timeout = 0;
 
     if (name == NULL)
         link_params.device = "inst0"; // Use default device name
@@ -112,7 +112,7 @@ int vxi11_send(void *data, char *message, int length, int timeout)
 
     // Configure VXI11 write parameters
     write_params.lid = vxi11_data->link_resp.lid;
-    write_params.lock_timeout = timeout;
+    write_params.lock_timeout = 0;
     write_params.io_timeout = timeout;
     write_params.flags = 0x9;
     write_params.data.data_len = length;
@@ -137,7 +137,7 @@ int vxi11_receive(void *data, char *message, int length, int timeout)
 
     // Configure VXI11 read parameters
     read_params.lid = vxi11_data->link_resp.lid;
-    read_params.lock_timeout = timeout;
+    read_params.lock_timeout = 0;
     read_params.io_timeout = timeout;
     read_params.flags = 0;
     read_params.termChar = 0;
