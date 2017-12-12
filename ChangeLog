@@ -1,4 +1,14 @@
-=== liblxi v1.7 ===
+=== liblxi v1.8 ===
+
+
+Changes since liblxi v1.7:
+
+ * Fix lxi_connect() so it does not apply lock
+
+   Some instruments fail to lock for exclusive access when creating a
+   VXI-11 connection. So, to play it safe, we will simply not try to lock
+   when setting up the connection.
+
 
 
 Changes since liblxi v1.6:
