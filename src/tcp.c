@@ -101,6 +101,7 @@ int tcp_send(void *data, char *message, int length, int timeout)
     int status;
     struct timeval tv;
     fd_set wdfs;
+    int n = 0, bytes_sent = 0;
 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
@@ -115,18 +116,30 @@ int tcp_send(void *data, char *message, int length, int timeout)
     if (status == -1)
         return -1;
     else if (status)
-        return write(tcp_data->server_socket, message, length);
+    {
+        // Send until all data is sent
+        do
+        {
+            n = send(tcp_data->server_socket, message + n, length, 0);
+            length -= n;
+            bytes_sent += n;
+        }
+        while (length > 0);
+
+        return bytes_sent;
+    }
     else
         error_printf("Timeout\n");
 
     return -1;
 }
 
-int tcp_receive(void *data, char *message, int length, int timeout)
+static int tcp_receive_(void *data, char *message, int length, int timeout, int flags)
 {
     int status;
     struct timeval tv;
     fd_set rdfs;
+    int n = 0, bytes_received = 0;
 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
@@ -141,9 +154,33 @@ int tcp_receive(void *data, char *message, int length, int timeout)
     if (status == -1)
         return -1;
     else if (status)
-        return read(tcp_data->server_socket, message, length);
+    {
+        // Receive until all data is received
+        do
+        {
+            n = recv(tcp_data->server_socket, message + n, length, flags);
+            if (n < 0)
+                break;
+            length -= n;
+            bytes_received += n;
+        }
+        while (n > 0);
+
+        return bytes_received;
+    }
     else
         error_printf("Timeout\n");
 
     return -1;
+
+}
+
+int tcp_receive(void *data, char *message, int length, int timeout)
+{
+    return tcp_receive_(data, message, length, timeout, MSG_DONTWAIT);
+}
+
+int tcp_receive_wait(void *data, char *message, int length, int timeout)
+{
+    return tcp_receive_(data, message, length, timeout, 0);
 }

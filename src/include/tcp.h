@@ -40,5 +40,6 @@ int tcp_connect(void *data, char *address, int port, char *name, int timeout);
 int tcp_disconnect(void *data);
 int tcp_send(void *data, char *message, int length, int timeout);
 int tcp_receive(void *data, char *message, int length, int timeout);
+int tcp_receive_wait(void *data, char *message, int length, int timeout);
 
 #endif

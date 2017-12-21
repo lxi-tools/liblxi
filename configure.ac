@@ -24,9 +24,10 @@ AC_ENABLE_STATIC
 AC_PROG_CC
 AC_LANG([C])
 AC_PROG_INSTALL
+PKG_PROG_PKG_CONFIG
 
 # Check for rpc headers
-AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Required rpc headers not found])])
+AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Missing rpc headers])])
 
 # Check for rpcgen tool
 AC_PATH_PROG([RPCGEN], [rpcgen])
@@ -48,6 +49,15 @@ if test x$have_avahi = x ; then
     AC_MSG_WARN([Avahi not found - mDNS discover feature will be disabled])
 fi
 AM_CONDITIONAL([HAVE_AVAHI],[test "x$have_avahi" == "xyes"])
+
+# Check for libxml2
+PKG_CHECK_MODULES(LIBXML2_PC, [libxml-2.0],
+    [CPPFLAGS="${CPPFLAGS} ${LIBXML2_PC_CFLAGS}"
+     LIBS="${LIBS} ${LIBXML2_PC_LIBS}"
+     AC_CHECK_LIB(xml2, xmlInitParser, [], AC_ERROR(Missing xml2 library))
+     ],
+    [AC_ERROR(Missing xml2 library)])
+AC_CHECK_HEADERS([libxml/xmlreader.h libxml/xmlwriter.h])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])

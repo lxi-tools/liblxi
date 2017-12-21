@@ -31,18 +31,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <rpc/rpc.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 #include "vxi11core.h"
 #include "vxi11.h"
+#include "tcp.h"
 #include "error.h"
 
-#define RPC_PORT                111
-#define ID_REQ_STRING      "*IDN?\n"
+#define PORT_HTTP                80
+#define PORT_RPC                111
+#define ID_REQ_HTTP "GET /lxi/identification HTTP/1.0\r\n\r\n";
+#define ID_REQ_SCPI       "*IDN?\n"
 #define ID_LENGTH_MAX         65536
 #define RECEIVE_END_BIT        0x04 // Receive end indicator
 #define RECEIVE_TERM_CHAR_BIT  0x02 // Receive termination character
@@ -201,15 +207,16 @@ int vxi11_unlock(void *data)
 
 static int get_device_id(char *address, char *id, int timeout)
 {
+    vxi11_data_t data;
     int length;
     int device;
-    vxi11_data_t data;
+    FILE *fd;
 
     device = vxi11_connect(&data, address, 0, NULL, timeout);
     if (device < 0)
         goto error_connect;
 
-    length = vxi11_send(&data, ID_REQ_STRING, strlen(ID_REQ_STRING), timeout);
+    length = vxi11_send(&data, ID_REQ_SCPI, strlen(ID_REQ_SCPI), timeout);
     if (length < 0)
         goto error_send;
 
@@ -227,6 +234,76 @@ static int get_device_id(char *address, char *id, int timeout)
         // Strip newline
         if (id[length-1] == '\n')
             id[length-1] = 0;
+    } else
+    {
+        // Fallback - try retrieve ID via HTTP/XML
+        char *request = ID_REQ_HTTP;
+        char response[4096];
+        char *response_xml;
+        tcp_data_t tcp_data;
+        xmlDocPtr doc;
+        xmlChar *value;
+
+        // Mute stderr temporarily
+        fd = freopen("/dev/null", "w", stderr);
+
+        // Get XML identification file
+        tcp_connect(&tcp_data, address, PORT_HTTP, NULL, timeout);
+        tcp_send(&tcp_data, request, strlen(request), timeout);
+        tcp_receive_wait(&tcp_data, response, 4096, timeout);
+        tcp_disconnect(&tcp_data);
+
+        // Find start of XML
+        response_xml = strstr(response, "<?xml");
+        if (response_xml == NULL)
+            goto error_xml_response;
+
+        // Read XML from memory
+        doc = xmlRecoverMemory(response_xml, strlen(response_xml));
+        if (doc == NULL)
+            goto error_xml_read;
+
+        xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
+        {
+            xmlNodePtr node;
+            xmlChar *value;
+            node = xmlDocGetRootElement(doc);
+            node = node->xmlChildrenNode;
+            while (node != NULL)
+            {
+                if ((!xmlStrcmp(node->name, element)))
+                {
+                    value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+                    return value;
+                }
+                node = node->next;
+            }
+        }
+
+        // Assemble ID string
+        id[0] = 0;
+
+        value = get_element_value(doc, "Manufacturer");
+        strcat(id, (char *) value);
+        strcat(id, ",");
+        xmlFree(value);
+
+        value = get_element_value(doc, "Model");
+        strcat(id, (char *) value);
+        strcat(id, ",");
+        xmlFree(value);
+
+        value = get_element_value(doc, "SerialNumber");
+        strcat(id, (char *) value);
+        strcat(id, ",");
+        xmlFree(value);
+
+        value = get_element_value(doc, "FirmwareRevision");
+        strcat(id, (char *) value);
+        xmlFree(value);
+
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
     }
 
     return 0;
@@ -235,6 +312,12 @@ error_receive:
 error_send:
     vxi11_disconnect(&data);
 error_connect:
+    return -1;
+
+error_xml_read:
+error_xml_response:
+    // Restore stderr
+    fd = freopen("/dev/tty", "w", stderr);
     return -1;
 }
 
@@ -286,7 +369,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     // Receivers address
     recv_addr.sin_family = AF_INET;
     recv_addr.sin_addr.s_addr = broadcast_addr->sin_addr.s_addr;
-    recv_addr.sin_port = htons(RPC_PORT);
+    recv_addr.sin_port = htons(PORT_RPC);
 
     // Broadcast RPC GETPORT message
     sendto(sockfd, rpc_GETPORT_msg, sizeof(rpc_GETPORT_msg), 0,
@@ -301,7 +384,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
                 (struct sockaddr*)&recv_addr, &addrlen);
         if (count > 0)
         {
-            // Add device if an LXI/SCPI ID string is returned
+            // Add device if an LXI ID string is returned
             char *address = inet_ntoa(recv_addr.sin_addr);
             if (get_device_id(address, id, timeout) == 0)
             {
