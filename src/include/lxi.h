@@ -31,6 +31,10 @@
 #ifndef LXI_H
 #define LXI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LXI_OK     0
 #define LXI_ERROR -1
 
@@ -60,5 +64,9 @@ int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t
 int lxi_send(int device, char *message, int length, int timeout);
 int lxi_receive(int device, char *message, int length, int timeout);
 int lxi_disconnect(int device);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
