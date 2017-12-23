@@ -34,7 +34,7 @@ CLEANFILES = vxi11core_clnt.c    \
              vxi11core_svc.c     \
              include/vxi11core.h
 
-liblxi_la_CFLAGS = -I$(top_srcdir)/src/include
+liblxi_la_CFLAGS = -I$(top_srcdir)/src/include -fvisibility=hidden
 
 liblxi_la_LDFLAGS = -version-info $(LIBLXI_LT_VERSION) -init,init
 if HAVE_AVAHI

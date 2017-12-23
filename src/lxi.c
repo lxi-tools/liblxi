@@ -40,10 +40,12 @@
 #include "tcp.h"
 #include "mdns.h"
 
+#define EXPORT __attribute__((visibility("default")))
+
 static struct session_t session[SESSIONS_MAX] = {};
 static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int lxi_init(void)
+EXPORT int lxi_init(void)
 {
     int i;
 
@@ -57,7 +59,7 @@ int lxi_init(void)
     return LXI_OK;
 }
 
-int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol)
+EXPORT int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol)
 {
     bool session_available = false;
     int i;
@@ -127,7 +129,7 @@ error_session:
     return LXI_ERROR;
 }
 
-int lxi_disconnect(int device)
+EXPORT int lxi_disconnect(int device)
 {
     if (device > SESSIONS_MAX)
         return LXI_ERROR;
@@ -149,7 +151,7 @@ int lxi_disconnect(int device)
     return LXI_OK;
 }
 
-int lxi_send(int device, char *message, int length, int timeout)
+EXPORT int lxi_send(int device, char *message, int length, int timeout)
 {
     int bytes_sent;
 
@@ -162,7 +164,8 @@ int lxi_send(int device, char *message, int length, int timeout)
     return bytes_sent;
 }
 
-int lxi_receive(int device, char *message, int length, int timeout)
+
+EXPORT int lxi_receive(int device, char *message, int length, int timeout)
 {
     int bytes_received;
 
@@ -175,7 +178,7 @@ int lxi_receive(int device, char *message, int length, int timeout)
     return bytes_received;
 }
 
-int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type)
+EXPORT int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type)
 {
     switch (type)
     {
