@@ -43,6 +43,7 @@
 #include "avahi.h"
 
 static AvahiSimplePoll *simple_poll = NULL;
+static AvahiServiceBrowser *sb[10] = {};
 static lxi_info_t *lxi_info;
 static int timeout_discover;
 static int count = 0;
@@ -142,10 +143,19 @@ static void avahi_client_callback(AvahiClient *c, AvahiClientState state, AVAHI_
     }
 }
 
+static int create_service_browser(AvahiClient *client, char *service)
+{
+    if (!(sb[count++] = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, service, NULL, 0, avahi_browse_callback, client)))
+    {
+        error_printf("Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
+        return 1;
+    }
+    return 0;
+}
+
 int avahi_discover(lxi_info_t *info, int timeout)
 {
     AvahiClient *client = NULL;
-    AvahiServiceBrowser *sb[10] = {};
     int status = 1;
     int error;
 
@@ -170,25 +180,14 @@ int avahi_discover(lxi_info_t *info, int timeout)
         goto fail;
     }
 
-    /* Create service browser helper */
-    int create_service_browser(char *service)
-    {
-        if (!(sb[count++] = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, service, NULL, 0, avahi_browse_callback, client)))
-        {
-            error_printf("Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
-            return 1;
-        }
-        return 0;
-    }
-
     /* Create the service browsers */
-    if (create_service_browser("_lxi._tcp"))
+    if (create_service_browser(client, "_lxi._tcp"))
         goto fail_sb;
-    if (create_service_browser("_vxi-11._tcp"))
+    if (create_service_browser(client, "_vxi-11._tcp"))
         goto fail_sb;
-    if (create_service_browser("_scpi-raw._tcp"))
+    if (create_service_browser(client, "_scpi-raw._tcp"))
         goto fail_sb;
-    if (create_service_browser("_scpi-telnet._tcp"))
+    if (create_service_browser(client, "_scpi-telnet._tcp"))
         goto fail_sb;
 
     /* Run the main loop */
