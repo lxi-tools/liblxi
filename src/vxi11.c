@@ -207,19 +207,19 @@ int vxi11_unlock(void *data)
 
 static xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
 {
-	xmlNodePtr node;
-	xmlChar *value;
-	node = xmlDocGetRootElement(doc);
-	node = node->xmlChildrenNode;
-	while (node != NULL)
-	{
-		if ((!xmlStrcmp(node->name, element)))
-		{
-			value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-			return value;
-		}
-		node = node->next;
-	}
+    xmlNodePtr node;
+    xmlChar *value;
+    node = xmlDocGetRootElement(doc);
+    node = node->xmlChildrenNode;
+    while (node != NULL)
+    {
+        if ((!xmlStrcmp(node->name, element)))
+        {
+            value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+            return value;
+        }
+        node = node->next;
+    }
 }
 
 static int get_device_id(char *address, char *id, int timeout)
