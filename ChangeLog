@@ -1,4 +1,36 @@
-=== liblxi v1.8 ===
+=== liblxi v1.9 ===
+
+
+Changes since liblxi v1.8:
+
+ * Update AUTHORS
+
+ * Convert tabs to spaces
+
+ * Make API usable in C++
+
+   As suggested by Dima Kogan, lets wrap the API so that it is usable in
+   C++.
+
+ * Only export lxi API specific functions
+
+   Hide visibility of internal functions so that only the lxi API specific
+   ones are exported/visible to applications linking with liblxi.
+
+   These changes are applied on behalf of Dima Kogan.
+
+ * Add discover fallback to request ID via HTTP/XML
+
+   If retrieving the instrument ID fails via VXI-11 during discovery then
+   try to retrieve the ID via the /lxi/identification XML file hosted by
+   some instruments via HTTP.
+
+   Adds dependency on libxml2.
+
+Dmitri Goutnik:
+
+ * Make code clang friendly, fix warnings
+
 
 
 Changes since liblxi v1.7:
