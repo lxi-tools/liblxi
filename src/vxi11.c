@@ -205,6 +205,23 @@ int vxi11_unlock(void *data)
 
 }
 
+static xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
+{
+	xmlNodePtr node;
+	xmlChar *value;
+	node = xmlDocGetRootElement(doc);
+	node = node->xmlChildrenNode;
+	while (node != NULL)
+	{
+		if ((!xmlStrcmp(node->name, element)))
+		{
+			value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
+			return value;
+		}
+		node = node->next;
+	}
+}
+
 static int get_device_id(char *address, char *id, int timeout)
 {
     vxi11_data_t data;
@@ -263,42 +280,25 @@ static int get_device_id(char *address, char *id, int timeout)
         if (doc == NULL)
             goto error_xml_read;
 
-        xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
-        {
-            xmlNodePtr node;
-            xmlChar *value;
-            node = xmlDocGetRootElement(doc);
-            node = node->xmlChildrenNode;
-            while (node != NULL)
-            {
-                if ((!xmlStrcmp(node->name, element)))
-                {
-                    value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-                    return value;
-                }
-                node = node->next;
-            }
-        }
-
         // Assemble ID string
         id[0] = 0;
 
-        value = get_element_value(doc, "Manufacturer");
+        value = get_element_value(doc, (xmlChar *)"Manufacturer");
         strcat(id, (char *) value);
         strcat(id, ",");
         xmlFree(value);
 
-        value = get_element_value(doc, "Model");
+        value = get_element_value(doc, (xmlChar *)"Model");
         strcat(id, (char *) value);
         strcat(id, ",");
         xmlFree(value);
 
-        value = get_element_value(doc, "SerialNumber");
+        value = get_element_value(doc, (xmlChar *)"SerialNumber");
         strcat(id, (char *) value);
         strcat(id, ",");
         xmlFree(value);
 
-        value = get_element_value(doc, "FirmwareRevision");
+        value = get_element_value(doc, (xmlChar *)"FirmwareRevision");
         strcat(id, (char *) value);
         xmlFree(value);
 
