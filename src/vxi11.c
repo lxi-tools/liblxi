@@ -197,18 +197,18 @@ int vxi11_receive(void *data, char *message, int length, int timeout)
 
 int vxi11_lock(void *data)
 {
-
+    return 0;
 }
 
 int vxi11_unlock(void *data)
 {
-
+    return 0;
 }
 
 static xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
 {
     xmlNodePtr node;
-    xmlChar *value;
+    xmlChar *value = NULL;
     node = xmlDocGetRootElement(doc);
     node = node->xmlChildrenNode;
     while (node != NULL)
@@ -216,10 +216,12 @@ static xmlChar *get_element_value(xmlDocPtr doc, xmlChar *element)
         if ((!xmlStrcmp(node->name, element)))
         {
             value = xmlNodeListGetString(doc, node->xmlChildrenNode, 1);
-            return value;
+            break;
         }
         node = node->next;
     }
+
+    return value;
 }
 
 static int get_device_id(char *address, char *id, int timeout)
