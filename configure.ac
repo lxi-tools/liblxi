@@ -37,16 +37,15 @@ if test x$RPCGEN = x ; then
 fi
 
 # Check for Avahi (mDNS/DNS-SD implementation)
-AC_CHECK_LIB([avahi-client], [avahi_client_new], [have_avahi_client=yes], [])
-AC_CHECK_LIB([avahi-common], [avahi_simple_poll_new], [have_avahi_common=yes], [])
+AC_ARG_ENABLE([avahi], AS_HELP_STRING([--disable-avahi], [Disable avahi mDNS feature]))
+AS_IF([test "x$enable_avahi" != "xno"], [
+  AC_CHECK_LIB([avahi-client], [avahi_client_new], [have_avahi_client=yes], [AC_ERROR(Missing avahi library)])
+  AC_CHECK_LIB([avahi-common], [avahi_simple_poll_new], [have_avahi_common=yes], [AC_ERROR(Missing avahi library)])
+])
 if test x$have_avahi_client = xyes ; then
     if test x$have_avahi_common = xyes ; then
-        AC_DEFINE([HAVE_AVAHI],[1],[Define if avahi libraries are available.])
         have_avahi=yes
     fi
-fi
-if test x$have_avahi = x ; then
-    AC_MSG_WARN([Avahi not found - mDNS discover feature will be disabled])
 fi
 AM_CONDITIONAL([HAVE_AVAHI],[test "x$have_avahi" == "xyes"])
 
