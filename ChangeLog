@@ -1,4 +1,17 @@
-=== liblxi v1.9 ===
+=== liblxi v1.10 ===
+
+
+
+Changes since liblxi v1.9:
+
+ * Update Travis
+
+ * Cleanup
+
+ * Add --disable-avahi configure option
+
+   Makes avahi mandatory unless --disable-avahi is provided.
+
 
 
 Changes since liblxi v1.8:
