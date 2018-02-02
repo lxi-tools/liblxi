@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <pthread.h>
 #include <avahi-client/client.h>
 #include <avahi-client/lookup.h>
 #include <avahi-common/simple-watch.h>
@@ -45,7 +46,7 @@
 static AvahiSimplePoll *simple_poll = NULL;
 static AvahiServiceBrowser *sb[10] = {};
 static lxi_info_t *lxi_info;
-static int timeout_discover;
+static int timeout_discover = 0;
 static int count = 0;
 
 static void avahi_resolve_callback(
@@ -74,7 +75,7 @@ static void avahi_resolve_callback(
             break;
         case AVAHI_RESOLVER_FOUND:
             {
-                char a[AVAHI_ADDRESS_STR_MAX];
+                char a[AVAHI_ADDRESS_STR_MAX] = "Unknown";
                 char *service_type = "Unknown";
 
                 // Pretty print service type
@@ -86,6 +87,8 @@ static void avahi_resolve_callback(
                     service_type = "scpi-raw";
                 else if (strcmp(type, "_scpi-telnet._tcp") == 0)
                     service_type = "scpi-telnet";
+                else if (strcmp(type, "_hislip._tcp") == 0)
+                    service_type = "hislip";
 
                 avahi_address_snprint(a, sizeof(a), address);
                 lxi_info->service(a, (char *) name, service_type, port);
@@ -113,19 +116,15 @@ static void avahi_browse_callback(
     switch (event)
     {
         case AVAHI_BROWSER_FAILURE:
-            error_printf("(Browser) %s\n", avahi_strerror(avahi_client_errno(avahi_service_browser_get_client(b))));
+            error_printf("(Avahi) %s\n", avahi_strerror(avahi_client_errno(avahi_service_browser_get_client(b))));
             avahi_simple_poll_quit(simple_poll);
             return;
         case AVAHI_BROWSER_NEW:
-            if (!(avahi_service_resolver_new(c, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, avahi_resolve_callback, c)))
+            if (!(avahi_service_resolver_new(c, interface, protocol, name, type, domain, AVAHI_PROTO_INET, 0, avahi_resolve_callback, c)))
                 error_printf("Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_client_errno(c)));
             break;
         case AVAHI_BROWSER_REMOVE:
-            break;
         case AVAHI_BROWSER_ALL_FOR_NOW:
-            usleep(timeout_discover);
-            avahi_simple_poll_quit(simple_poll);
-            break;
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
             break;
     }
@@ -153,7 +152,7 @@ static int create_service_browser(AvahiClient *client, char *service)
     return 0;
 }
 
-int avahi_discover(lxi_info_t *info, int timeout)
+int avahi_discover_(lxi_info_t *info, int timeout)
 {
     AvahiClient *client = NULL;
     int status = 1;
@@ -189,6 +188,8 @@ int avahi_discover(lxi_info_t *info, int timeout)
         goto fail_sb;
     if (create_service_browser(client, "_scpi-telnet._tcp"))
         goto fail_sb;
+    if (create_service_browser(client, "_hislip._tcp"))
+        goto fail_sb;
 
     /* Run the main loop */
     avahi_simple_poll_loop(simple_poll);
@@ -203,4 +204,50 @@ fail:
     if (simple_poll)
         avahi_simple_poll_free(simple_poll);
     return status;
+}
+
+typedef struct
+{
+    lxi_info_t *info;
+    int timeout;
+} data_t;
+
+void *discover(void *userdata)
+{
+    data_t *data = userdata;
+
+    avahi_discover_(data->info, data->timeout);
+}
+
+int avahi_discover(lxi_info_t *info, int timeout)
+{
+    struct timespec ts;
+    pthread_t thread;
+    data_t data;
+    int status;
+
+    data.info = info;
+    data.timeout = timeout;
+
+    if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
+    {
+       error_printf("Failed to read system clock\n");
+       return -1;
+    }
+
+    ts.tv_sec += timeout / 1000;
+
+    status = pthread_create(&thread, NULL, discover, (void*) &data);
+    if (status != 0)
+    {
+        error_printf("Failed to create discover thread\n");
+        return -1;
+    }
+
+    pthread_timedjoin_np(thread, NULL, &ts);
+    if (status != 0)
+    {
+        error_printf("Timeout waiting for discover thread\n");
+        return -1;
+    }
 }

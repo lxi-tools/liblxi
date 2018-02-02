@@ -39,12 +39,13 @@ fi
 # Check for Avahi (mDNS/DNS-SD implementation)
 AC_ARG_ENABLE([avahi], AS_HELP_STRING([--disable-avahi], [Disable avahi mDNS feature]))
 AS_IF([test "x$enable_avahi" != "xno"], [
-  AC_CHECK_LIB([avahi-client], [avahi_client_new], [have_avahi_client=yes], [AC_ERROR(Missing avahi library)])
-  AC_CHECK_LIB([avahi-common], [avahi_simple_poll_new], [have_avahi_common=yes], [AC_ERROR(Missing avahi library)])
+  AC_CHECK_LIB([avahi-client], [avahi_client_new], [have_avahi_client=yes], [AC_ERROR(Missing avahi-client library)])
+  AC_CHECK_LIB([avahi-common], [avahi_simple_poll_new], [have_avahi_common=yes], [AC_ERROR(Missing avahi-common library)])
 ])
 if test x$have_avahi_client = xyes ; then
     if test x$have_avahi_common = xyes ; then
         have_avahi=yes
+        AC_DEFINE([HAVE_AVAHI],[1],[Avahi available])
     fi
 fi
 AM_CONDITIONAL([HAVE_AVAHI],[test "x$have_avahi" == "xyes"])
