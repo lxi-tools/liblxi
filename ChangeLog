@@ -1,4 +1,10 @@
-=== liblxi v1.10 ===
+=== liblxi v1.11 ===
+
+
+
+Changes since liblxi v1.10:
+
+ * Fix mDNS/DNS-SD discover feature
 
 
 
