@@ -252,7 +252,11 @@ static int get_device_id(char *address, char *id, int timeout)
     {
         // Strip newline
         if (id[length-1] == '\n')
-            id[length-1] = 0;
+            id[--length] = 0;
+
+        // Strip carriage return
+        if (id[length-1] == '\r')
+            id[--length] = 0;
     } else
     {
         // Fallback - try retrieve ID via HTTP/XML
