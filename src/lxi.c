@@ -155,6 +155,12 @@ EXPORT int lxi_send(int device, char *message, int length, int timeout)
 {
     int bytes_sent;
 
+    if (device < 0)
+        return LXI_ERROR;
+
+    if (session[device].connected == false)
+        return LXI_ERROR;
+
     // Send
     bytes_sent = session[device].send(session[device].data, message, length, timeout);
     if (bytes_sent < 0)
@@ -168,6 +174,12 @@ EXPORT int lxi_send(int device, char *message, int length, int timeout)
 EXPORT int lxi_receive(int device, char *message, int length, int timeout)
 {
     int bytes_received;
+
+    if (device < 0)
+        return LXI_ERROR;
+
+    if (session[device].connected == false)
+        return LXI_ERROR;
 
     // Receive
     bytes_received = session[device].receive(session[device].data, message, length, timeout);
