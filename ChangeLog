@@ -1,4 +1,14 @@
-=== liblxi v1.11 ===
+=== liblxi v1.12 ===
+
+
+
+Changes since liblxi v1.11:
+
+ * Add send/receive sanity checks
+
+ * Strip CR from ID response string
+
+   Fixes corrupted output from 'lxi discover'.
 
 
 
@@ -189,3 +199,4 @@ Changes since liblxi v1.0:
 liblxi v1.0:
 
  * First release (stable)
+
