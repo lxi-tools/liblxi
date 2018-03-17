@@ -26,8 +26,8 @@ AC_LANG([C])
 AC_PROG_INSTALL
 PKG_PROG_PKG_CONFIG
 
-# Check for rpc headers
-AC_CHECK_HEADERS(rpc/rpc.h, [], [AC_ERROR([Missing rpc headers])])
+# Check for libtirpc (Sun RPC, includes rpc.h etc.)
+PKG_CHECK_MODULES([libtirpc], [libtirpc])
 
 # Check for rpcgen tool
 AC_PATH_PROG([RPCGEN], [rpcgen])
