@@ -207,3 +207,24 @@ EXPORT int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type)
 
     return LXI_OK;
 }
+
+EXPORT int lxi_discover_if(lxi_info_t *info, const char *ifname, int timeout, lxi_discover_t type)
+{
+    switch (type)
+    {
+        case DISCOVER_VXI11:
+            if (ifname == NULL)
+                vxi11_discover(info, timeout);
+            else
+                vxi11_discover_if(info, ifname, timeout);
+            break;
+        case DISCOVER_MDNS:
+            mdns_discover(info, timeout);
+            break;
+        default:
+            error_printf("Unknown discover type (%d)\n", type);
+            return LXI_ERROR;
+    }
+
+    return LXI_OK;
+}

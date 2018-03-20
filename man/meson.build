@@ -22,16 +22,25 @@ manpage_lxi_discover = configure_file(
      output: 'lxi_discover.3',
      configuration: conf,
 )
+
+manpage_lxi_discover_if = configure_file(
+     input: files('lxi_discover_if.3.in'),
+     output: 'lxi_discover_if.3',
+     configuration: conf,
+)
+
 manpage_lxi_init = configure_file(
      input: files('lxi_init.3.in'),
      output: 'lxi_init.3',
      configuration: conf,
 )
+
 manpage_lxi_receive = configure_file(
      input: files('lxi_receive.3.in'),
      output: 'lxi_receive.3',
      configuration: conf,
 )
+
 manpage_lxi_send = configure_file(
      input: files('lxi_send.3.in'),
      output: 'lxi_send.3',
@@ -43,6 +52,7 @@ manpages = [
             manpage_lxi_disconnect,
             manpage_lxi_init,
             manpage_lxi_discover,
+            manpage_lxi_discover_if,
             manpage_lxi_receive,
             manpage_lxi_send,
             ]

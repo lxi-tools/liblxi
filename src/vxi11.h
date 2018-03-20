@@ -45,5 +45,6 @@ int vxi11_disconnect(void *data);
 int vxi11_send(void *data, const char *message, int length, int timeout);
 int vxi11_receive(void *data, char *message, int length, int timeout);
 int vxi11_discover(lxi_info_t *info, int timeout);
+int vxi11_discover_if(lxi_info_t *info, const char *ifname, int timeout);
 
 #endif

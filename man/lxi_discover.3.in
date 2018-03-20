@@ -110,6 +110,7 @@ int main()
 .fi
 
 .SH "SEE ALSO"
+.BR lxi_discover_if (3)
 .BR lxi_init (3)
 .BR lxi_open (3),
 .BR lxi_close (3)

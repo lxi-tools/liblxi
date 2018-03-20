@@ -510,3 +510,36 @@ int vxi11_discover(lxi_info_t *info, int timeout)
 
     return 0;
 }
+
+int vxi11_discover_if(lxi_info_t *info, const char *ifname, int timeout)
+{
+    struct sockaddr_in *broadcast_addr;
+    struct ifaddrs *ifap;
+    int status;
+
+    // Go through available broadcast addresses
+    if (getifaddrs(&ifap) == 0)
+    {
+        struct ifaddrs *ifap_p = ifap;
+
+        while (ifap_p)
+        {
+            if ((ifap_p->ifa_addr) && (ifap_p->ifa_addr->sa_family == AF_INET) && (strcmp(ifap_p->ifa_name, ifname) == 0))
+            {
+                broadcast_addr = (struct sockaddr_in *) ifap_p->ifa_broadaddr;
+
+                // Notify current broadcast address and network interface via callback
+                if (info->broadcast != NULL)
+                    info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
+
+                // Find VXI11 devices via broadcast address
+                status = discover_devices(broadcast_addr, info, timeout);
+
+            }
+            ifap_p = ifap_p->ifa_next;
+        }
+        freeifaddrs(ifap);
+    }
+
+    return 0;
+}

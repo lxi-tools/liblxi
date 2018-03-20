@@ -1,0 +1,30 @@
+.TH "lxi_discover_if" "3" "@version_date@" "liblxi @version@" "C Library Functions"
+
+.SH "NAME"
+lxi_discover_if \- search for LXI devices on network via specified network interface
+
+.SH "SYNOPSIS"
+.PP
+.B #include <lxi.h>
+
+.B int lxi_discover_if(lxi_info_t *info, const char *ifname, int timeout, lxi_discover_t type);
+
+.SH "DESCRIPTION"
+.PP
+The
+.BR lxi_discover_if()
+function works exactly like
+.BR lxi_discover()
+but adds an additional parameter
+.I ifname
+which specifies the name of the network
+interface to broadcast on when using the
+.I DISCOVER_VXI11
+discovery type. The 
+.I ifname
+parameter is ignored for other discovery types.
+
+.fi
+
+.SH "SEE ALSO"
+.BR lxi_discover (3)
