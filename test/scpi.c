@@ -7,7 +7,7 @@
 int main()
 {
     char response[65536];
-    int device, length, timeout = 3000;
+    int device, timeout = 3000;
     char *command = "*IDN?";
 
     // Initialize LXI library

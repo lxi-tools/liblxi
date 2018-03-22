@@ -65,7 +65,7 @@ static char rpc_GETPORT_msg[] =
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
 };
 
-int vxi11_connect(void *data, char *address, int port, char *name, int timeout)
+int vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
     Create_LinkParms link_params;
 
@@ -84,7 +84,7 @@ int vxi11_connect(void *data, char *address, int port, char *name, int timeout)
     if (name == NULL)
         link_params.device = "inst0"; // Use default device name
     else
-        link_params.device = name; // Use provided device name
+        link_params.device = (char *) name; // Use provided device name
 
     if (create_link_1(&link_params, &vxi11_data->link_resp, vxi11_data->rpc_client) != RPC_SUCCESS)
         goto error_link;
@@ -109,7 +109,7 @@ int vxi11_disconnect(void *data)
     return 0;
 }
 
-int vxi11_send(void *data, char *message, int length, int timeout)
+int vxi11_send(void *data, const char *message, int length, int timeout)
 {
     Device_WriteParms write_params;
     Device_WriteResp write_resp;
@@ -122,7 +122,7 @@ int vxi11_send(void *data, char *message, int length, int timeout)
     write_params.io_timeout = timeout;
     write_params.flags = 0x9;
     write_params.data.data_len = length;
-    write_params.data.data_val = message;
+    write_params.data.data_val = (char *) message;
 
     // Send
     if (device_write_1(&write_params, &write_resp, vxi11_data->rpc_client) != RPC_SUCCESS)

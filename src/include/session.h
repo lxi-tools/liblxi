@@ -41,9 +41,9 @@ struct session_t
     bool allocated;
     bool connected;
     void *data;
-    int (*connect)(void *data, char *address, int port, char *name, int timeout);
+    int (*connect)(void *data, const char *address, int port, const char *name, int timeout);
     int (*disconnect)(void *data);
-    int (*send)(void *data, char *message, int length, int timeout);
+    int (*send)(void *data, const char *message, int length, int timeout);
     int (*receive)(void *data, char *message, int length, int timeout);
 };
 

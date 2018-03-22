@@ -59,7 +59,7 @@ EXPORT int lxi_init(void)
     return LXI_OK;
 }
 
-EXPORT int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol)
+EXPORT int lxi_connect(const char *address, int port, const char *name, int timeout, lxi_protocol_t protocol)
 {
     bool session_available = false;
     int i;
@@ -151,7 +151,7 @@ EXPORT int lxi_disconnect(int device)
     return LXI_OK;
 }
 
-EXPORT int lxi_send(int device, char *message, int length, int timeout)
+EXPORT int lxi_send(int device, const char *message, int length, int timeout)
 {
     int bytes_sent;
 

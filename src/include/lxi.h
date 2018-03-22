@@ -40,9 +40,9 @@ extern "C" {
 
 typedef struct
 {
-    void (*broadcast)(char *address, char *interface);
-    void (*device)(char *address, char *id);
-    void (*service)(char *address, char *id, char *service, int port);
+    void (*broadcast)(const char *address, const char *interface);
+    void (*device)(const char *address, const char *id);
+    void (*service)(const char *address, const char *id, const char *service, int port);
 } lxi_info_t;
 
 typedef enum
@@ -60,8 +60,9 @@ typedef enum
 
 int lxi_init(void);
 int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type);
-int lxi_connect(char *address, int port, char *name, int timeout, lxi_protocol_t protocol);
-int lxi_send(int device, char *message, int length, int timeout);
+int lxi_discover_if(lxi_info_t *info, const char* ifname, int timeout, lxi_discover_t type);
+int lxi_connect(const char *address, int port, const char *name, int timeout, lxi_protocol_t protocol);
+int lxi_send(int device, const char *message, int length, int timeout);
 int lxi_receive(int device, char *message, int length, int timeout);
 int lxi_disconnect(int device);
 

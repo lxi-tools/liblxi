@@ -3,12 +3,12 @@
 
 // Example - Search for LXI instruments using VXI-11 discovery
 
-void broadcast(char *address, char *interface)
+void broadcast(const char *address, const char *interface)
 {
     printf("Broadcasting on interface %s\n", interface);
 }
 
-void device(char *address, char *id)
+void device(const char *address, const char *id)
 {
     printf(" Found %s on address %s\n", id, address);
 }
