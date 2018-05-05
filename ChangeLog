@@ -1,4 +1,26 @@
-=== liblxi v1.12 ===
+=== liblxi v1.13 ===
+
+
+
+Changes since liblxi v1.12:
+
+ * Fix Sun RPC headers configure check
+
+   The Sun RPC headers have been moved out of glibc into a separate
+   library, libtirpc.
+
+   Hence, check for glibc headers first and in case that fails search for
+   headers in libtirpc via pkg-config.
+
+ * Add const qualifier
+
+   Because it is the right thing to do.
+
+ * Update Travis
+
+ * Use libtirpc for Sun RPC headers
+
+ * Move test directory
 
 
 
