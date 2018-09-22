@@ -76,9 +76,18 @@
 
 4. Installation
 
-    The latest release version can be downloaded from https://lxi-tools.github.io
+    The latest release can be downloaded from https://lxi-tools.github.io
 
-4.1 Installation using release tarball
+
+4.1 Installation using source
+
+    To compile and install successfully from source you need to install the
+    following dependencies:
+
+     * libtirpc
+     * rpcgen
+     * libxml2
+     * avahi    (optional)
 
     Install steps:
 
@@ -86,7 +95,14 @@
      $ make
      $ make install
 
-4.2 Installation using package
+    Note: Please do no try to install from source if you are not familiar with
+          using autotools.
+
+    Note: If you are installing from git source remember to run the autogen.sh
+          script to generate the configure script.
+
+
+4.3 Installation using package
 
     liblxi comes prepackaged for various GNU/Linux distributions. Visit
     https://lxi-tools.github.io to see list of supported distributions.

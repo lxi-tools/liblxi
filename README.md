@@ -79,9 +79,18 @@ See src/test for more examples.
 
 ## 4. Installation
 
-The latest release version can be downloaded from https://lxi-tools.github.io
-    
-### 4.1 Installation using release tarball
+The latest release can be downloaded from https://lxi-tools.github.io
+
+
+### 4.1 Installation using source
+
+To compile and install successfully from source you need to install the
+following dependencies:
+
+ * libtirpc
+ * rpcgen
+ * libxml2
+ * avahi    (optional)
 
 Install steps:
 ```
@@ -89,6 +98,12 @@ Install steps:
     $ make
     $ make install
 ```
+Note: Please do no try to install from source if you are not familiar with
+using autotools.
+
+Note: If you are installing from git source remember to run the autogen.sh
+script to generate the configure script.
+
 
 ### 4.2 Installation using package
 
