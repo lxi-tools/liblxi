@@ -88,7 +88,6 @@ To compile and install successfully from source you need to install the
 following dependencies:
 
  * libtirpc
- * rpcgen
  * libxml2
  * avahi    (optional)
 
@@ -101,9 +100,6 @@ Install steps:
 Note: Please do no try to install from source if you are not familiar with
 using autotools.
 
-Note: If you are installing from git source remember to run the autogen.sh
-script to generate the configure script.
-
 
 ### 4.2 Installation using package
 
@@ -113,7 +109,8 @@ https://lxi-tools.github.io to see list of supported distributions.
 
 ## 5. Contributing
 
-liblxi is open source. If you want to help out with the project please join in.
+liblxi is open source. If you want to help out with the project please feel
+free to join in.
 
 All contributions (bug reports, code, doc, ideas, etc.) are welcome.
 
