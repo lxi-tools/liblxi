@@ -1,4 +1,4 @@
-.TH "lxi_disconnect" "3" "October 2017"
+.TH "lxi_disconnect" "3" "@version_date@" "liblxi @version@" "C Library Functions"
 
 .SH "NAME"
 lxi_disconnect \- disconnect a LXI connection

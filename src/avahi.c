@@ -217,6 +217,8 @@ void *discover(void *userdata)
     data_t *data = userdata;
 
     avahi_discover_(data->info, data->timeout);
+
+    return 0;
 }
 
 int avahi_discover(lxi_info_t *info, int timeout)
@@ -250,4 +252,6 @@ int avahi_discover(lxi_info_t *info, int timeout)
         error_printf("Timeout waiting for discover thread\n");
         return -1;
     }
+
+    return 0;
 }

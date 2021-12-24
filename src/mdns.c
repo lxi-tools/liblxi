@@ -29,7 +29,6 @@
  */
 
 #include <lxi.h>
-#include "config.h"
 
 #ifdef HAVE_AVAHI
 #include "avahi.h"

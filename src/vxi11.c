@@ -229,7 +229,6 @@ static int get_device_id(char *address, char *id, int timeout)
     vxi11_data_t data;
     int length;
     int device;
-    FILE *fd;
 
     device = vxi11_connect(&data, address, 0, NULL, timeout);
     if (device < 0)
@@ -268,7 +267,7 @@ static int get_device_id(char *address, char *id, int timeout)
         xmlChar *value;
 
         // Mute stderr temporarily
-        fd = freopen("/dev/null", "w", stderr);
+        freopen("/dev/null", "w", stderr);
 
         // Get XML identification file
         tcp_connect(&tcp_data, address, PORT_HTTP, NULL, timeout);
@@ -323,7 +322,7 @@ error_connect:
 error_xml_read:
 error_xml_response:
     // Restore stderr
-    fd = freopen("/dev/tty", "w", stderr);
+    freopen("/dev/tty", "w", stderr);
     return -1;
 }
 
@@ -414,7 +413,6 @@ int vxi11_discover(lxi_info_t *info, int timeout)
 {
     struct sockaddr_in *broadcast_addr;
     struct ifaddrs *ifap;
-    int status;
 
     // Go through available broadcast addresses
     if (getifaddrs(&ifap) == 0)
@@ -432,7 +430,7 @@ int vxi11_discover(lxi_info_t *info, int timeout)
                     info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
 
                 // Find VXI11 devices via broadcast address
-                status = discover_devices(broadcast_addr, info, timeout);
+                discover_devices(broadcast_addr, info, timeout);
 
             }
             ifap_p = ifap_p->ifa_next;

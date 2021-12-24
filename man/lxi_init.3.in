@@ -1,4 +1,4 @@
-.TH "lxi_init" "3" "October 2017"
+.TH "lxi_init" "3" "@version_date@" "liblxi @version@" "C Library Functions"
 
 .SH "NAME"
 lxi_init \- initialize LXI library
