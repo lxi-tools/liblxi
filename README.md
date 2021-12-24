@@ -93,12 +93,12 @@ following dependencies:
 
 Install steps:
 ```
-    $ ./configure
-    $ make
-    $ make install
+    $ meson setup build
+    $ meson compile -C build
+    $ meson install -C build
 ```
 Note: Please do no try to install from source if you are not familiar with
-using autotools.
+using meson.
 
 
 ### 4.2 Installation using package
