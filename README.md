@@ -1,6 +1,6 @@
 # liblxi
 
-[![Build Status](https://travis-ci.org/lxi-tools/liblxi.svg?branch=master)](https://travis-ci.org/lxi-tools/liblxi)
+[![CircleCI](https://circleci.com/gh/lxi-tools/liblxi/tree/master.svg?style=shield)](https://circleci.com/gh/lxi-tools/liblxi/tree/master)
 
 ## 1. Introduction
 
