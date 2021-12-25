@@ -14,7 +14,6 @@ liblxi_deps = [
   dependency('avahi-client', required: true),
   dependency('libtirpc', required: true),
   dependency('libxml-2.0', required: true),
-  meson.get_compiler('c').find_library('lxi', required: true),
   meson.get_compiler('c').find_library('pthread', required: true),
 ]
 
