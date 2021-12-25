@@ -40,6 +40,8 @@
 #include <rpc/rpc.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
+#include <pthread.h>
+#include <signal.h>
 #include "vxi11core.h"
 #include "vxi11.h"
 #include "tcp.h"
@@ -53,6 +55,16 @@
 #define RECEIVE_END_BIT        0x04 // Receive end indicator
 #define RECEIVE_TERM_CHAR_BIT  0x02 // Receive termination character
 
+
+typedef struct
+{
+    void *data;
+    const char *address;
+    int port;
+    const char *name;
+    int timeout;
+} thread_vxi11_connect_args_t;
+
 // Payload representing GETPORT RPC call
 static char rpc_GETPORT_msg[] =
 {
@@ -65,7 +77,7 @@ static char rpc_GETPORT_msg[] =
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
 };
 
-int vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
+static int _vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
     Create_LinkParms link_params;
 
@@ -95,6 +107,64 @@ error_link:
     clnt_destroy(vxi11_data->rpc_client);
 error_client:
     return -1;
+}
+
+static void *thread_vxi11_connect(void *ptr)
+{
+    int *status;
+    thread_vxi11_connect_args_t *args = (thread_vxi11_connect_args_t *) ptr;
+
+    status = malloc(sizeof(int)); // Automatically freed when thread is killed
+    *status = _vxi11_connect(args->data, args->address, args->port, args->name, args->timeout);
+
+    pthread_exit(status);
+}
+
+int vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
+{
+    struct timespec timeout_tv;
+    pthread_t thread;
+    int status;
+    int *thread_status;
+
+    thread_vxi11_connect_args_t args =
+    {
+        .data = data,
+        .address = address,
+        .port = port,
+        .name = name,
+        .timeout = timeout,
+    };
+
+    status = clock_gettime(CLOCK_REALTIME, &timeout_tv);
+    if (status != 0)
+    {
+        error_printf("Error clock_gettime()\n");
+        return -1;
+    }
+
+    // Convert timeout in ms to timespec
+    timeout_tv.tv_sec += timeout / 1000;
+    timeout_tv.tv_nsec += (timeout % 1000) * 1000;
+
+    // Start thread that will perform the connect action
+    status = pthread_create(&thread, NULL, thread_vxi11_connect, &args);
+    if (status != 0)
+    {
+        error_printf("Error pthread_create()\n");
+        return -1;
+    }
+
+    // Wait for thread to terminate or timeout
+    status = pthread_timedjoin_np(thread, (void *)&thread_status, &timeout_tv);
+    if (status != 0)
+    {
+        // Timeout reached
+        pthread_cancel(thread);
+        return -1;
+    }
+
+    return *thread_status;
 }
 
 int vxi11_disconnect(void *data)
@@ -342,7 +412,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1)
     {
-        perror("Socket creation error");
+        error_printf("Socket creation error");
         return -1;
     }
 
@@ -350,7 +420,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     if((setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST,
                     &broadcast,sizeof (broadcast))) == -1)
     {
-        perror("setsockopt - SO_SOCKET");
+        error_printf("setsockopt - SO_SOCKET");
         goto socket_options_error;
     }
 
@@ -359,7 +429,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     tv.tv_usec = (timeout % 1000) * 1000;
     if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
     {
-        perror("setsockopt - SO_RCVTIMEO");
+        error_printf("setsockopt - SO_RCVTIMEO");
         goto socket_options_error;
     }
 
