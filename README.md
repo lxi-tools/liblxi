@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/lxi-tools/liblxi/tree/master.svg?style=shield)](https://circleci.com/gh/lxi-tools/liblxi/tree/master)
 
+
 ## 1. Introduction
 
 liblxi is an open source software library which offers a simple API for
@@ -141,4 +142,4 @@ For license details please see the COPYING file.
 
 Created by Martin Lund \<martin.lund@keep-it-simple.com>
 
-See the AUTHORS file for full list of authors.
+See the AUTHORS file for full list of contributors.
