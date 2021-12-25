@@ -40,11 +40,16 @@
 #include <errno.h>
 #include "tcp.h"
 #include "error.h"
+#include <fcntl.h>
 
 int tcp_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
     struct sockaddr_in server_address;
     struct hostent *host;
+    struct timeval tv;
+    int result, opt;
+    fd_set wait_set;
+    socklen_t len;
 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
@@ -53,6 +58,19 @@ int tcp_connect(void *data, const char *address, int port, const char *name, int
     {
         error_printf("socket() call failed\n");
         return -1;
+    }
+
+    // Get socket flags
+    if ((opt = fcntl(tcp_data->server_socket, F_GETFL, NULL)) < 0)
+    {
+      error_printf("%s\n", strerror(errno));
+      return -1;
+    }
+    // Set socket non-blocking
+    if ((fcntl(tcp_data->server_socket, F_SETFL, opt | O_NONBLOCK)) < 0)
+    {
+      error_printf("%s\n", strerror(errno));
+      return -1;
     }
 
     // Construct the server address structure
@@ -76,12 +94,56 @@ int tcp_connect(void *data, const char *address, int port, const char *name, int
         memcpy(&server_address.sin_addr, host->h_addr, sizeof(server_address.sin_addr));
     }
 
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+
     // Establish connection to server
-    if (connect(tcp_data->server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
+    result = connect(tcp_data->server_socket, (struct sockaddr *) &server_address, sizeof(server_address));
+    if (result < 0)
     {
-        error_printf("connect() call failed\n");
+      if (errno == EINPROGRESS)
+      {
+        FD_ZERO(&wait_set);
+        FD_SET(tcp_data->server_socket, &wait_set);
+        // Wait for socket to be writable up to timeout duration
+        result = select(tcp_data->server_socket + 1, NULL, &wait_set, NULL, &tv);
+      }
+    }
+    else
+    {
+      result = 1;
+    }
+
+    // Reset socket flags
+    if (fcntl(tcp_data->server_socket, F_SETFL, opt) < 0)
+    {
+      error_printf("%s\n", strerror(errno));
+      close(tcp_data->server_socket);
+      return -1;
+    }
+
+    if (result < 0)
+    {
+      error_printf("connect() call failed\n");
+      close(tcp_data->server_socket);
+      return -1;
+    }
+    else if (result == 0)
+    {
+      error_printf("connect() call timed out\n");
+      close(tcp_data->server_socket);
+      return -1;
+    }
+    else
+    {
+      // Check for socket errors
+      len = sizeof(opt);
+      if (getsockopt(tcp_data->server_socket, SOL_SOCKET, SO_ERROR, &opt, &len) != 0)
+      {
+        error_printf("%s\n", strerror(errno));
         close(tcp_data->server_socket);
         return -1;
+      }
     }
 
     return 0;
