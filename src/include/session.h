@@ -34,7 +34,7 @@
 #include <stdbool.h>
 #include <lxi.h>
 
-#define SESSIONS_MAX           256
+#define SESSIONS_MAX 1024
 
 struct session_t
 {
