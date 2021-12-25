@@ -1,7 +1,0 @@
-sudo: true
-language: c
-install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libavahi-core-dev libavahi-common-dev libavahi-client-dev libxml2-dev libtirpc-dev
-before_script: ./autogen.sh
-script: ./configure && make && sudo make install
