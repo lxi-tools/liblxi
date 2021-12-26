@@ -38,7 +38,7 @@ int mdns_discover(lxi_info_t *info, int timeout)
 {
 
 #ifdef HAVE_AVAHI
-    avahi_discover(info, timeout);
+    return avahi_discover(info, timeout);
 #endif
 
     return 0;

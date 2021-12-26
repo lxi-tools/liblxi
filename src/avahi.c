@@ -39,14 +39,15 @@
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
+#include <avahi-common/timeval.h>
 #include <lxi.h>
 #include "error.h"
 #include "avahi.h"
 
 static AvahiSimplePoll *simple_poll = NULL;
+static const AvahiPoll *poll_api = NULL;
 static AvahiServiceBrowser *sb[10] = {};
 static lxi_info_t *lxi_info;
-static int timeout_discover = 0;
 static int count = 0;
 
 static void avahi_resolve_callback(
@@ -70,12 +71,12 @@ static void avahi_resolve_callback(
     switch (event)
     {
         case AVAHI_RESOLVER_FAILURE:
-            error_printf("(Resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
+            error_printf("Avahi failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
                     name, type, domain, avahi_strerror(avahi_client_errno(avahi_service_resolver_get_client(r))));
             break;
         case AVAHI_RESOLVER_FOUND:
             {
-                char a[AVAHI_ADDRESS_STR_MAX] = "Unknown";
+                char addr[AVAHI_ADDRESS_STR_MAX] = "Unknown";
                 char *service_type = "Unknown";
 
                 // Pretty print service type
@@ -90,8 +91,9 @@ static void avahi_resolve_callback(
                 else if (strcmp(type, "_hislip._tcp") == 0)
                     service_type = "hislip";
 
-                avahi_address_snprint(a, sizeof(a), address);
-                lxi_info->service(a, (char *) name, service_type, port);
+                avahi_address_snprint(addr, sizeof(addr), address);
+                if (lxi_info->service != NULL)
+                    lxi_info->service(addr, (char *) name, service_type, port);
             }
     }
     avahi_service_resolver_free(r);
@@ -121,7 +123,7 @@ static void avahi_browse_callback(
             return;
         case AVAHI_BROWSER_NEW:
             if (!(avahi_service_resolver_new(c, interface, protocol, name, type, domain, AVAHI_PROTO_INET, 0, avahi_resolve_callback, c)))
-                error_printf("Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_client_errno(c)));
+                error_printf("Avahi failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_client_errno(c)));
             break;
         case AVAHI_BROWSER_REMOVE:
         case AVAHI_BROWSER_ALL_FOR_NOW:
@@ -137,7 +139,7 @@ static void avahi_client_callback(AvahiClient *c, AvahiClientState state, AVAHI_
     /* Called whenever the client or server state changes */
     if (state == AVAHI_CLIENT_FAILURE)
     {
-        error_printf("Server connection failure: %s\n", avahi_strerror(avahi_client_errno(c)));
+        error_printf("Avahi server connection failure: %s\n", avahi_strerror(avahi_client_errno(c)));
         avahi_simple_poll_quit(simple_poll);
     }
 }
@@ -146,36 +148,48 @@ static int create_service_browser(AvahiClient *client, char *service)
 {
     if (!(sb[count++] = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, service, NULL, 0, avahi_browse_callback, client)))
     {
-        error_printf("Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
+        error_printf("Failed to create Avahi service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
         return 1;
     }
     return 0;
 }
 
-int avahi_discover_(lxi_info_t *info, int timeout)
+static void avahi_terminate(AVAHI_GCC_UNUSED AvahiTimeout *timeout, AVAHI_GCC_UNUSED void *userdata)
+{
+    avahi_simple_poll_quit(simple_poll);
+}
+
+int avahi_discover(lxi_info_t *info, int timeout)
 {
     AvahiClient *client = NULL;
+    struct timeval tv;
     int status = 1;
     int error;
 
     /* Setup callback structure and timeout for avahi service callback */
     lxi_info = info;
-    timeout_discover = timeout * 1000;
 
     /* Allocate main loop object */
-    if (!(simple_poll = avahi_simple_poll_new()))
+    simple_poll = avahi_simple_poll_new();
+    if (!simple_poll)
     {
-        error_printf("Failed to create simple poll object.\n");
+        error_printf("Failed to create simple Avahi poll object.\n");
+        goto fail;
+    }
+
+    /* Get poll API object for configuration of Avahi poll loop */
+    poll_api = avahi_simple_poll_get(simple_poll);
+    if (!poll_api)
+    {
+        error_printf("Failed to create Avahi poll API object.\n");
         goto fail;
     }
 
     /* Allocate a new client */
     client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, avahi_client_callback, NULL, &error);
-
-    /* Check whether creating the client object succeeded */
     if (!client)
     {
-        error_printf("Failed to create client: %s\n", avahi_strerror(error));
+        error_printf("Failed to create Avahi client: %s\n", avahi_strerror(error));
         goto fail;
     }
 
@@ -191,67 +205,24 @@ int avahi_discover_(lxi_info_t *info, int timeout)
     if (create_service_browser(client, "_hislip._tcp"))
         goto fail_sb;
 
-    /* Run the main loop */
+    // Set timeout
+    avahi_elapse_time(&tv, timeout, 0);
+    poll_api->timeout_new(poll_api, &tv, avahi_terminate, NULL);
+
+    /* Run the main Avahi loop */
     avahi_simple_poll_loop(simple_poll);
+
     status = 0;
 
 fail_sb:
-    while (--count)
+    while (--count >= 0)
+    {
         avahi_service_browser_free(sb[count]);
+    }
 fail:
     if (client)
         avahi_client_free(client);
     if (simple_poll)
         avahi_simple_poll_free(simple_poll);
     return status;
-}
-
-typedef struct
-{
-    lxi_info_t *info;
-    int timeout;
-} data_t;
-
-void *discover(void *userdata)
-{
-    data_t *data = userdata;
-
-    avahi_discover_(data->info, data->timeout);
-
-    return 0;
-}
-
-int avahi_discover(lxi_info_t *info, int timeout)
-{
-    struct timespec ts;
-    pthread_t thread;
-    data_t data;
-    int status;
-
-    data.info = info;
-    data.timeout = timeout;
-
-    if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
-    {
-       error_printf("Failed to read system clock\n");
-       return -1;
-    }
-
-    ts.tv_sec += timeout / 1000;
-
-    status = pthread_create(&thread, NULL, discover, (void*) &data);
-    if (status != 0)
-    {
-        error_printf("Failed to create discover thread\n");
-        return -1;
-    }
-
-    pthread_timedjoin_np(thread, NULL, &ts);
-    if (status != 0)
-    {
-        error_printf("Timeout waiting for discover thread\n");
-        return -1;
-    }
-
-    return 0;
 }
