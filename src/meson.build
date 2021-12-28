@@ -1,5 +1,3 @@
-liblxi_includedir = [include_directories('include')]
-
 liblxi_sources = [
   'avahi.c',
   'lxi.c',
@@ -33,11 +31,10 @@ liblxi = shared_library(
   'lxi',
   liblxi_sources,
   dependencies: liblxi_deps,
-  include_directories: liblxi_includedir,
   install: true,
   c_args: liblxi_c_args,
   link_args: ['-fvisibility=hidden', '-Wl,-init,init'],
   version: '1.0.0',
 )
 
-subdir('include')
+install_headers('lxi.h')
