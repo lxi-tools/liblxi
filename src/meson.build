@@ -14,7 +14,7 @@ liblxi_deps = [
   dependency('avahi-client', required: true),
   dependency('libtirpc', required: true),
   dependency('libxml-2.0', required: true),
-  meson.get_compiler('c').find_library('pthread', required: true),
+  dependency('threads', required: true),
 ]
 
 if meson.get_compiler('c').has_header('avahi-client/client.h')
@@ -36,6 +36,8 @@ liblxi = shared_library(
   include_directories: liblxi_includedir,
   install: true,
   c_args: liblxi_c_args,
+  link_args: ['-fvisibility=hidden', '-Wl,-init,init'],
+  version: '1.0.0',
 )
 
 subdir('include')
