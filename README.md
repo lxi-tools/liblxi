@@ -18,6 +18,18 @@ The library is based on the VXI-11 RPC protocol implementation which is part of
 the asynDriver EPICS module, which, at time of writing, is available from:
 http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
 
+### 1.1 What is LXI?
+
+LAN eXtensions for Instrumentation (LXI) is a standard developed by the LXI
+Consortium, an industry consortium that maintains the LXI specification and
+promotes the LXI Standard. The LXI standard defines the communication protocols
+for modern instrumentation and data acquisition systems using Ethernet.
+
+Visit https://www.lxistandard.org for more details.
+
+Please notice that liblxi is not affiliated with the LXI consortium - it is
+an independent open source community effort.
+
 
 ## 2. The liblxi API
 
@@ -80,10 +92,9 @@ See src/test for more examples.
 
 ## 4. Installation
 
-The latest release can be downloaded from https://lxi-tools.github.io
+### 4.1 Installation from source
 
-
-### 4.1 Installation using source
+The latest source releases can be found [here](https://github.com/lxi-tools/liblxi/releases).
 
 To compile and install successfully from source you need to install the
 following dependencies:
@@ -104,8 +115,8 @@ using meson.
 
 ### 4.2 Installation using package
 
-liblxi comes prepackaged for various GNU/Linux distributions. Visit
-https://lxi-tools.github.io to see list of supported distributions.
+liblxi comes prepackaged for various GNU/Linux distributions. Please consult
+your package manager tool to find and install lxi-tools.
 
 
 ## 5. Contributing
