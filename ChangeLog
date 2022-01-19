@@ -1,4 +1,51 @@
-=== liblxi v1.13 ===
+=== liblxi v1.14 ===
+
+
+Changes since liblxi v1.13:
+
+ * Add lxi_discover_if() function
+
+   Works exactly like the lxi_discover() function but adds an additional
+   parameter ifname that specifies which network interface to broadcast on
+   in case of using the DISCOVER_VXI11 discovery type.
+
+ * Bypass linking with libtirpc because of bug
+
+   When linking with libtirpc some of the VXI11 connect calls starts
+   failing for some instruments. More investigation is needed to find out
+   exactly why. It may be some regression in the libtirpc Sun RPC
+   implementation. The Sun RPC features have recently been moved out of
+   glibc into libtirpc.
+
+   When we do not link with libtirpc we fallback to using glibc's
+   implementation of the RPC features which seem to work better.
+
+   We will accept this hack for now.
+
+ * Remove include directory
+
+ * Reduce compiler optimization level
+
+ * Introduce proper Avahi timeout handling for mDNS
+
+ * Increase number of allowed concurrent sessions
+
+ * Fix timeout for VXI11 connect
+
+   The VXI11 API does not provide any way to specify a communications
+   timeout when connecting. To fix that we move the VXI11 connect action
+   into a separate thread that is killed if the timeout is reached before
+   the thread exits.
+
+   The old behavior was that the connect action would eventually time out
+   for instruments on known subnets.  However, if you tried to connect to
+   an instrument on an unknown subnet it would stall forever.
+
+   This new implementation will respect the timeout for all cases.
+
+ * Replace autotools with meson
+
+ * Added timeout for RAW/TCP connections
 
 
 
