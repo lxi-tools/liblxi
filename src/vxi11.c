@@ -515,7 +515,7 @@ int vxi11_discover_if(lxi_info_t *info, const char *ifname, int timeout)
 {
     struct sockaddr_in *broadcast_addr;
     struct ifaddrs *ifap;
-    int status;
+    int status = 0;
 
     // Go through available broadcast addresses
     if (getifaddrs(&ifap) == 0)
@@ -541,5 +541,5 @@ int vxi11_discover_if(lxi_info_t *info, const char *ifname, int timeout)
         freeifaddrs(ifap);
     }
 
-    return 0;
+    return status;
 }
