@@ -10,7 +10,6 @@ liblxi_sources = [
 
 liblxi_deps = [
   dependency('avahi-client', required: true),
-  #  dependency('libtirpc', required: true),
   dependency('libxml-2.0', required: true),
   dependency('threads', required: true),
 ]
@@ -19,9 +18,9 @@ if meson.get_compiler('c').has_header('avahi-client/client.h')
   add_project_arguments('-DHAVE_AVAHI', language: 'c')
 endif
 
-if not meson.get_compiler('c').has_header('tirpc/rpc/rpc.h')
-  error('Please install libtirpc headers')
-endif
+tirpc_dep = dependency('libtirpc', required: true)
+tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')
+tirpc_incdir = include_directories(tirpc_incpath)
 
 liblxi_c_args = [
   '-Wno-unused-variable',
@@ -29,7 +28,6 @@ liblxi_c_args = [
   '-Wno-unused-result',
   '-fvisibility=hidden',
   '-D_GNU_SOURCE',
-  '-I/usr/include/tirpc',
 ]
 
 liblxi = shared_library(
@@ -38,6 +36,7 @@ liblxi = shared_library(
   dependencies: liblxi_deps,
   install: true,
   c_args: liblxi_c_args,
+  include_directories: tirpc_incdir,
   link_args: ['-fvisibility=hidden', '-Wl,-init,init'],
   version: '1.0.0',
 )
