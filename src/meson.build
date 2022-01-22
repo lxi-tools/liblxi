@@ -19,7 +19,7 @@ if meson.get_compiler('c').has_header('avahi-client/client.h')
   add_project_arguments('-DHAVE_AVAHI', language: 'c')
 endif
 
-if not meson.get_compiler('c').has_header('tirpc/rpc/rpc.h')
+if not meson.get_compiler('c').has_header('rpc/rpc.h', include_directories: include_directories('/usr/include/tirpc'))
   error('Please install libtirpc headers')
 endif
 
