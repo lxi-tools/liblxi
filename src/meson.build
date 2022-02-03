@@ -12,9 +12,13 @@ liblxi_deps = [
   dependency('threads', required: true),
 ]
 
-tirpc_dep = dependency('libtirpc', required: true)
-tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')
-tirpc_incdir = include_directories(tirpc_incpath)
+includedirs = []
+
+if host_machine.system() != 'darwin'
+  tirpc_dep = dependency('libtirpc', required: true)
+  tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')
+  includedirs += include_directories(tirpc_incpath)
+endif
 
 liblxi_c_args = [
   '-Wno-unused-variable',
@@ -30,8 +34,8 @@ liblxi = shared_library(
   dependencies: liblxi_deps,
   install: true,
   c_args: liblxi_c_args,
-  include_directories: tirpc_incdir,
-  link_args: ['-fvisibility=hidden', '-Wl,-init,init'],
+  include_directories: includedirs,
+  link_args: ['-fvisibility=hidden', '-Wl'],
   version: '1.0.0',
 )
 
