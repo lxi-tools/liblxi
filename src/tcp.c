@@ -174,15 +174,25 @@ int tcp_send(void *data, const char *message, int length, int timeout)
     FD_ZERO(&wdfs);
     FD_SET(tcp_data->server_socket, &wdfs);
 
+    // Wait for socket to be writable
     status = select(tcp_data->server_socket + 1, NULL, &wdfs, NULL, &tv);
     if (status == -1)
+    {
+        error_printf("%s\n", strerror(errno));
         return -1;
+    }
     else if (status)
     {
         // Send until all data is sent
         do
         {
             n = send(tcp_data->server_socket, message + n, length, 0);
+            if (n < 0)
+            {
+                error_printf("%s\n", strerror(errno));
+                return -1;
+            }
+
             length -= n;
             bytes_sent += n;
         }
@@ -191,7 +201,9 @@ int tcp_send(void *data, const char *message, int length, int timeout)
         return bytes_sent;
     }
     else
+    {
         error_printf("Timeout\n");
+    }
 
     return -1;
 }
@@ -212,6 +224,7 @@ static int tcp_receive_(void *data, char *message, int length, int timeout, int 
     FD_ZERO(&rdfs);
     FD_SET(tcp_data->server_socket, &rdfs);
 
+    // Wait for socket to be readable
     status = select(tcp_data->server_socket + 1, &rdfs, NULL, NULL, &tv);
     if (status == -1)
         return -1;
@@ -231,10 +244,11 @@ static int tcp_receive_(void *data, char *message, int length, int timeout, int 
         return bytes_received;
     }
     else
+    {
         error_printf("Timeout\n");
+    }
 
     return -1;
-
 }
 
 int tcp_receive(void *data, char *message, int length, int timeout)
