@@ -1,4 +1,10 @@
-=== liblxi v1.15 ===
+=== liblxi v1.16 ===
+
+
+
+Changes since liblxi v1.15:
+
+ * Fix handling of send errors for TCP/RAW connections
 
 
 
@@ -64,6 +70,8 @@ Changes since liblxi v1.13:
    This new implementation will respect the timeout for all cases.
 
  * Replace autotools with meson
+
+zramudzuli:
 
  * Added timeout for RAW/TCP connections
 
