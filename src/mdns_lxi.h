@@ -28,11 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AVAHI_H
-#define AVAHI_H
+#include "mdns.h"
 
-#include <lxi.h>
-
-int avahi_discover(lxi_info_t *info, int timeout);
-
-#endif
+int mdns_discover(lxi_info_t *info, int timeout);

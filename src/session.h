@@ -32,7 +32,7 @@
 #define SESSION_H
 
 #include <stdbool.h>
-#include <lxi.h>
+#include "lxi.h"
 
 #define SESSIONS_MAX 1024
 

@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/errno.h>
 #include <netinet/in.h>
 #include <net/if.h>
 #include <arpa/inet.h>
@@ -46,6 +47,7 @@
 #include "vxi11.h"
 #include "tcp.h"
 #include "error.h"
+#include "mdns_lxi.h"
 
 #define PORT_HTTP                80
 #define PORT_RPC                111
@@ -77,6 +79,52 @@ static char rpc_GETPORT_msg[] =
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
 };
 
+struct args {
+    int joined;
+    pthread_t td;
+    pthread_mutex_t mtx;
+    pthread_cond_t cond;
+    void **res;
+};
+
+static void *waiter(void *ap)
+{
+    struct args *args = ap;
+    pthread_join(args->td, args->res);
+    pthread_mutex_lock(&args->mtx);
+    args->joined = 1;
+    pthread_mutex_unlock(&args->mtx);
+    pthread_cond_signal(&args->cond);
+    return 0;
+}
+
+int pthread_timedjoin_np(pthread_t td, void **res, struct timespec *ts)
+{
+    pthread_t tmp;
+    int ret;
+    struct args args = { .td = td, .res = res };
+
+    pthread_mutex_init(&args.mtx, 0);
+    pthread_cond_init(&args.cond, 0);
+    pthread_mutex_lock(&args.mtx);
+
+    ret = pthread_create(&tmp, 0, waiter, &args);
+    if (ret) return ret;
+
+    do ret = pthread_cond_timedwait(&args.cond, &args.mtx, ts);
+    while (!args.joined && ret != ETIMEDOUT);
+
+    pthread_mutex_unlock(&args.mtx);
+
+    pthread_cancel(tmp);
+    pthread_join(tmp, 0);
+
+    pthread_cond_destroy(&args.cond);
+    pthread_mutex_destroy(&args.mtx);
+
+    return args.joined ? 0 : ret;
+}
+
 static int _vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
     Create_LinkParms link_params;
@@ -84,7 +132,7 @@ static int _vxi11_connect(void *data, const char *address, int port, const char 
     vxi11_data_t *vxi11_data = (vxi11_data_t *) data;
 
     // Set up client
-    vxi11_data->rpc_client = clnt_create(address, DEVICE_CORE, DEVICE_CORE_VERSION, "tcp");
+    vxi11_data->rpc_client = clnt_create((char *)address, DEVICE_CORE, DEVICE_CORE_VERSION, "tcp");
     if (vxi11_data->rpc_client == NULL)
         goto error_client;
 
@@ -115,7 +163,7 @@ static void *thread_vxi11_connect(void *ptr)
     thread_vxi11_connect_args_t *args = (thread_vxi11_connect_args_t *) ptr;
 
     status = malloc(sizeof(int)); // Automatically freed when thread is killed
-    *status = _vxi11_connect(args->data, args->address, args->port, args->name, args->timeout);
+    *status = _vxi11_connect(args->data, (char *)args->address, args->port, args->name, args->timeout);
 
     pthread_exit(status);
 }

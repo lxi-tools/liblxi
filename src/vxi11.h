@@ -32,7 +32,7 @@
 #define VXI11_H
 
 #include "vxi11core.h"
-#include <lxi.h>
+#include "lxi.h"
 
 typedef struct
 {

@@ -9,14 +9,9 @@ liblxi_sources = [
 ]
 
 liblxi_deps = [
-  dependency('avahi-client', required: true),
   dependency('libxml-2.0', required: true),
   dependency('threads', required: true),
 ]
-
-if meson.get_compiler('c').has_header('avahi-client/client.h')
-  add_project_arguments('-DHAVE_AVAHI', language: 'c')
-endif
 
 tirpc_dep = dependency('libtirpc', required: true)
 tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')

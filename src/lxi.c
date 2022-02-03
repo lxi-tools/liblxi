@@ -33,12 +33,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <pthread.h>
-#include <lxi.h>
+#include "lxi.h"
 #include "error.h"
 #include "session.h"
 #include "vxi11.h"
 #include "tcp.h"
-#include "mdns.h"
+#include "mdns_lxi.h"
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -138,11 +138,12 @@ EXPORT int lxi_disconnect(int device)
 
     // Disconnect
     if (session[device].connected)
+    {
         session[device].disconnect(session[device].data);
-
     // Free resources
-    free(session[device].data);
-
+        free(session[device].data);
+    }
+    
     session[device].connected = false;
     session[device].allocated = false;
 
