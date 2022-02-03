@@ -1,5 +1,4 @@
 liblxi_sources = [
-  'avahi.c',
   'lxi.c',
   'mdns.c',
   'tcp.c',
