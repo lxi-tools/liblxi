@@ -16,8 +16,7 @@ include adding support for the newer and more efficient HiSlip protocol which
 is used by next generation LXI instruments.
 
 The library is based on the VXI-11 RPC protocol implementation which is part of
-the asynDriver EPICS module, which, at time of writing, is available from:
-http://www.aps.anl.gov/epics/modules/soft/asyn/index.html
+the asynDriver EPICS module, which, at time of writing, is available [here](http://www.aps.anl.gov/epics/modules/soft/asyn/index.html).
 
 ### 1.1 What is LXI?
 
@@ -26,7 +25,7 @@ Consortium, an industry consortium that maintains the LXI specification and
 promotes the LXI Standard. The LXI standard defines the communication protocols
 for modern instrumentation and data acquisition systems using Ethernet.
 
-Visit https://www.lxistandard.org for more details.
+Visit www.lxistandard.org for more details.
 
 Please notice that liblxi is not affiliated with the LXI consortium - it is
 an independent open source community effort.
@@ -138,7 +137,7 @@ consider making a donation of your choice:
 
 ## 6. Website
 
-Visit https://lxi-tools.github.io
+Visit [lxi-tools.github.io](https://lxi-tools.github.io)
 
 
 ## 7. License
