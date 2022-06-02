@@ -1,6 +1,7 @@
 # liblxi
 
 [![CircleCI](https://circleci.com/gh/lxi-tools/liblxi/tree/master.svg?style=shield)](https://circleci.com/gh/lxi-tools/liblxi/tree/master)
+[![Packaging status](https://repology.org/badge/tiny-repos/liblxi.svg)](https://repology.org/project/liblxi/versions)
 
 
 ## 1. Introduction
