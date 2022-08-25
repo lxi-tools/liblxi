@@ -123,6 +123,8 @@ EXPORT int lxi_connect(const char *address, int port, const char *name, int time
     return i;
 
 error_connect:
+    if (session[i].data)
+        free(session[i].data);
 error_protocol:
 error_session:
     pthread_mutex_unlock(&session_mutex);
