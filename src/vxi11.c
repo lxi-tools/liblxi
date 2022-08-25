@@ -161,6 +161,10 @@ int vxi11_connect(void *data, const char *address, int port, const char *name, i
     {
         // Timeout reached
         pthread_cancel(thread);
+
+        // Wait for child thread to end before returning
+        pthread_join(thread, NULL);
+
         return -1;
     }
 
