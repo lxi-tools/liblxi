@@ -256,8 +256,6 @@ int vxi11_receive(void *data, char *message, int length, int timeout)
 
             offset += read_resp.data.data_len;
         }
-        else
-            return -1;
 
         // Stop if we have reached end of receive operation
         if ((read_resp.reason & RECEIVE_END_BIT) || (read_resp.reason & RECEIVE_TERM_CHAR_BIT))
