@@ -6,7 +6,7 @@ project('liblxi', 'c',
 )
 
 # The tag date of the project_version(), update when the version bumps.
-version_date='2022-02-03'
+version_date='2022-09-28'
 
 subdir('src')
 subdir('man')
