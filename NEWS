@@ -1,4 +1,23 @@
-=== liblxi v1.16 ===
+=== liblxi v1.17 ===
+
+
+
+Changes since liblxi v1.16:
+
+Perry Hung:
+
+ * vxi11: do not fail on zero length messages
+
+   Zero length messages are valid replies in VXI-11. Do not return an error
+   and prematurely exit.
+
+   Reads should be repeated until EOI or an error is encountered.
+
+Holzapfel:
+
+ * Fixed missing VXI11 connect-abort multithreading synchronization
+
+ * Fixed LXI connect error memory leak
 
 
 
@@ -14,13 +33,13 @@ Changes since liblxi v1.14:
 
    Remove the hardcoded include patch to libtirpc and replace it with one
    dynamically resolved via pkg-config.
-   
+
    The reason for implementing the meson dependency check this way is to
    avoid linking with libtirpc because it is broken with regards to its Sun
    RPC implementation so instead we link with the RPC implementation which
    still reside in glibc. However, glibc removed their RPC header files so
    we need the headers from libtirpc.
-   
+
    Further investigation is required to find and fix the bug in the
    libtirpc RPC implementation so we can get back to normal. They changed
    something moving it out of glibc and they shouldn't have.
