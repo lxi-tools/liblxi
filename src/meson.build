@@ -1,5 +1,4 @@
 liblxi_sources = [
-  'avahi.c',
   'lxi.c',
   'mdns.c',
   'tcp.c',
@@ -9,13 +8,15 @@ liblxi_sources = [
 ]
 
 liblxi_deps = [
-  dependency('avahi-client', required: true),
+  dependency('avahi-client', required: false),
   dependency('libxml-2.0', required: true),
   dependency('threads', required: true),
 ]
 
 if meson.get_compiler('c').has_header('avahi-client/client.h')
+  # without avahi, mdns discovery won't do anything
   add_project_arguments('-DHAVE_AVAHI', language: 'c')
+  liblxi_sources += 'avahi.c'
 endif
 
 tirpc_dep = dependency('libtirpc', required: true)
