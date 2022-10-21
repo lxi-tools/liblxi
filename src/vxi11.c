@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -65,6 +66,16 @@ typedef struct
     int timeout;
 } thread_vxi11_connect_args_t;
 
+typedef struct
+{
+    int joined;
+    pthread_t td;
+    pthread_mutex_t mtx;
+    pthread_cond_t cond;
+    void **res;
+} thread_vxi11_wrapper_args_t;
+
+
 // Payload representing GETPORT RPC call
 static char rpc_GETPORT_msg[] =
 {
@@ -76,6 +87,45 @@ static char rpc_GETPORT_msg[] =
     0x00, 0x06, 0x07, 0xaf, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00
 };
+
+
+// A POSIX compatible pthread_timedjoin_np
+static void *_pthread_waiter(void *ap)
+{
+    thread_vxi11_wrapper_args_t *args = ap;
+    pthread_join(args->td, args->res);
+    pthread_mutex_lock(&args->mtx);
+    args->joined = 1;
+    pthread_mutex_unlock(&args->mtx);
+    pthread_cond_signal(&args->cond);
+    return 0;
+}
+
+static int _pthread_timedjoin(pthread_t td, void **res, struct timespec *ts)
+{
+    pthread_t tmp;
+    int ret;
+    thread_vxi11_wrapper_args_t args = { .td = td, .res = res };
+
+    pthread_mutex_init(&args.mtx, 0);
+    pthread_cond_init(&args.cond, 0);
+    pthread_mutex_lock(&args.mtx);
+
+    ret = pthread_create(&tmp, 0, _pthread_waiter, &args);
+    if (ret == 0) {
+      do {
+        ret = pthread_cond_timedwait(&args.cond, &args.mtx, ts);
+      } while (!args.joined && ret != ETIMEDOUT);
+    }
+
+    pthread_cancel(tmp);
+    pthread_join(tmp, 0);
+
+    pthread_cond_destroy(&args.cond);
+    pthread_mutex_destroy(&args.mtx);
+
+    return args.joined ? 0 : ret;
+}
 
 static int _vxi11_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
@@ -156,7 +206,7 @@ int vxi11_connect(void *data, const char *address, int port, const char *name, i
     }
 
     // Wait for thread to terminate or timeout
-    status = pthread_timedjoin_np(thread, (void *)&thread_status, &timeout_tv);
+    status = _pthread_timedjoin(thread, (void *)&thread_status, &timeout_tv);
     if (status != 0)
     {
         // Timeout reached
