@@ -2,6 +2,24 @@
 
 
 
+Changes since liblxi v1.17:
+
+Alexander von Gluck IV:
+
+ * build: make avahi optional again after meson conversion
+
+   * matches readme again
+   * liblxi is still usable, but it definitely
+     takes some of the fun out of it.
+
+ * vxi11: Drop non-portable pthread timeout call; solves #30
+
+   * Convert to manually constructing a timedjoin
+     wrapper which should work outside of Linux
+   * Tested functional
+
+
+
 Changes since liblxi v1.16:
 
 Perry Hung:
