@@ -2,8 +2,8 @@
 
 [![](https://img.shields.io/circleci/build/gh/lxi-tools/liblxi?token=c8d446df155ca86d6003ff9a7ae809da6efda017)](https://circleci.com/gh/lxi-tools/liblxi/tree/master)
 [![](https://img.shields.io/github/v/release/lxi-tools/liblxi?sort=semver)](https://github.com/lxi-tools/liblxi/releases)
-[![](https://img.shields.io/tokei/lines/github/lxi-tools/liblxi)](https://github.com/lxi-tools/liblxi)
 [![](https://img.shields.io/repology/repositories/liblxi)](https://repology.org/project/liblxi/versions)
+[![](https://img.shields.io/tokei/lines/github/lxi-tools/liblxi)](https://github.com/lxi-tools/liblxi)
 
 
 ## 1. Introduction
