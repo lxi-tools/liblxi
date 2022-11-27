@@ -144,6 +144,10 @@ create_intr_chan_1(Device_RemoteFunc *argp, Device_Error *clnt_res, CLIENT *clnt
 		TIMEOUT));
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+
 enum clnt_stat 
 destroy_intr_chan_1(void *argp, Device_Error *clnt_res, CLIENT *clnt)
 {
@@ -152,3 +156,7 @@ destroy_intr_chan_1(void *argp, Device_Error *clnt_res, CLIENT *clnt)
 		(xdrproc_t) xdr_Device_Error, (caddr_t) clnt_res,
 		TIMEOUT));
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
