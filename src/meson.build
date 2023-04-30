@@ -19,15 +19,17 @@ if meson.get_compiler('c').has_header('avahi-client/client.h')
   liblxi_sources += 'avahi.c'
 endif
 
-excluded_systems = ['darwin']
+tirpc_excluded_systems = ['darwin']
 link_args = ['-fvisibility=hidden']
 tirpc_incdir = []
 
-if host_machine.system() not in excluded_systems
+if host_machine.system() not in tirpc_excluded_systems
   tirpc_dep = dependency('libtirpc', required: true)
   tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')
   tirpc_incdir = include_directories(tirpc_incpath)
   link_args += ['-Wl,-init,init']
+elif not meson.get_compiler('c').has_header('rpc/rpc.h')
+  error('The required RPC headers is not available, cannot proceed with the build.')
 endif
 
 liblxi_c_args = [
@@ -50,3 +52,4 @@ liblxi = shared_library(
 )
 
 install_headers('lxi.h')
+
