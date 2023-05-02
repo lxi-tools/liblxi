@@ -5,7 +5,6 @@
 [![](https://img.shields.io/repology/repositories/liblxi)](https://repology.org/project/liblxi/versions)
 [![](https://img.shields.io/tokei/lines/github/lxi-tools/liblxi)](https://github.com/lxi-tools/liblxi)
 
-
 ## 1. Introduction
 
 liblxi is an open source software library which offers a simple API for
@@ -32,11 +31,11 @@ Visit www.lxistandard.org for more details.
 Please notice that liblxi is not affiliated with the LXI consortium - it is
 an independent open source community effort.
 
-
 ## 2. The liblxi API
 
 The API is small and simple. It includes functions required for discovering and
 communicating SCPI messages with LXI devices:
+
 ```
     int lxi_init(void);
     int lxi_discover(struct lxi_info_t *info, int timeout, lxi_discover_t type);
@@ -45,10 +44,10 @@ communicating SCPI messages with LXI devices:
     int lxi_receive(int device, char *message, int length, int timeout);
     int lxi_disconnect(int device);
 ```
+
 Note: `type` is `DISCOVER_VXI11` or `DISCOVER_MDNS`
 
 Note: `protocol` is `VXI11` or `RAW`
-
 
 ## 3. API usage
 
@@ -83,14 +82,15 @@ Here is a simple code example on how to use the liblxi API:
          lxi_disconnect(device);
      }
 ```
+
 The example above prints the ID string of the LXI instrument. For example, a
 Rigol DS1104Z oscilloscope would respond:
-```    
+
+```
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
 ```
 
 See src/test for more examples.
-
 
 ## 4. Installation
 
@@ -101,25 +101,36 @@ The latest source releases can be found [here](https://github.com/lxi-tools/libl
 To compile and install successfully from source you need to install the
 following dependencies:
 
- * libtirpc
- * libxml2
- * avahi    (optional)
+- libtirpc
+- libxml2
+- avahi (optional)
 
 Install steps:
+
 ```
     $ meson setup build
     $ meson compile -C build
     $ meson install -C build
 ```
+
 Note: Please do no try to install from source if you are not familiar with
 using meson.
-
 
 ### 4.2 Installation using package
 
 liblxi comes prepackaged for various GNU/Linux distributions. Please consult
 your package manager tool to find and install lxi-tools.
 
+### 4.3 Homebrew
+
+liblxi is available on Homebrew for Linux and MacOS users
+
+```
+    # Install latest release version
+    $ brew install lbilxi
+    # Install from master branch
+    $ brew install --HEAD liblxi
+```
 
 ## 5. Contributing
 
@@ -130,27 +141,23 @@ All contributions (bug reports, code, doc, ideas, etc.) are welcome.
 
 Please use the github issue tracker and pull request features.
 
-
 Also, if you find this free open source software useful please feel free to
 consider making a donation of your choice:
 
 [![Donate](https://raw.githubusercontent.com/lxi-tools/lxi-tools/master/images/Paypal.png)](https://www.paypal.me/lundmar)
 
-
 ## 6. Website
 
 Visit [lxi-tools.github.io](https://lxi-tools.github.io)
-
 
 ## 7. License
 
 liblxi includes code covered by the following licenses:
 
- * BSD-3, commonly known as the 3-clause (or "modified") BSD license
- * EPICS Open software license
+- BSD-3, commonly known as the 3-clause (or "modified") BSD license
+- EPICS Open software license
 
 For license details please see the COPYING file.
-
 
 ## 8. Authors
 
