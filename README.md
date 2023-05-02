@@ -85,7 +85,7 @@ Here is a simple code example on how to use the liblxi API:
 ```
 The example above prints the ID string of the LXI instrument. For example, a
 Rigol DS1104Z oscilloscope would respond:
-```    
+```
     RIGOL TECHNOLOGIES,DS1104Z,DS1ZA1234567890,00.04.03
 ```
 
@@ -119,6 +119,15 @@ using meson.
 
 liblxi comes prepackaged for various GNU/Linux distributions. Please consult
 your package manager tool to find and install lxi-tools.
+
+### 4.3 Homebrew
+
+liblxi is available on Homebrew for Linux and MacOS users
+
+``` shell
+    # Install latest release version
+    $ brew install liblxi
+```
 
 
 ## 5. Contributing
