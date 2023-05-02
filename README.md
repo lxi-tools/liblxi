@@ -115,17 +115,19 @@ Note: Please do no try to install from source if you are not familiar with
 using meson.
 
 
-### 4.2 Installation using package
+### 4.2 Installation using package manager (Linux)
 
 liblxi comes prepackaged for various GNU/Linux distributions. Please consult
 your package manager tool to find and install lxi-tools.
 
-### 4.3 Homebrew
+If you would like to see liblxi included in your favorite distribution, please
+reach out to its package maintainers team.
 
-liblxi is available on Homebrew for Linux and MacOS users
+### 4.3 Installation using Homebrew (MacOS, Linux)
+
+If you have [Homebrew](https://brew.sh) installed:
 
 ``` shell
-    # Install latest release version
     $ brew install liblxi
 ```
 
