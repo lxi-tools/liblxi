@@ -140,7 +140,7 @@ void browse_lxi_services(lxi_info_t *info, int timeout_ms)
 
     for (lxi_service_t *s = lxi_services; s->broadcast_type != NULL; s++)
     {
-        error = DNSServiceBrowse(&service, 0, 0, s->broadcast_type, "local.", browse_callback, info);
+        error = DNSServiceBrowse(&service, 0, 0, s->broadcast_type, NULL, browse_callback, info);
         if (error != kDNSServiceErr_NoError)
         {
             fprintf(stderr, "DNSServiceBrowse() failed: %d\n", error);
