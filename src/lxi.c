@@ -45,6 +45,14 @@
 static struct session_t session[SESSIONS_MAX] = {};
 static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+lxi_service_t lxi_services[] = {
+    {"_lxi._tcp.", "lxi"},
+    {"_vxi-11._tcp.", "vxi-11"},
+    {"_scpi-raw._tcp.", "scpi-raw"},
+    {"_scpi-telnet._tcp.", "scpi-telnet"},
+    {"_hislip._tcp.", "hislip"},
+    {NULL, NULL}};
+
 EXPORT int lxi_init(void)
 {
     int i;
@@ -67,11 +75,11 @@ EXPORT int lxi_connect(const char *address, int port, const char *name, int time
     pthread_mutex_lock(&session_mutex);
 
     // Find a free session entry
-    for (i=0; i<SESSIONS_MAX; i++)
+    for (i = 0; i < SESSIONS_MAX; i++)
     {
         if (session[i].allocated == false)
         {
-            session_available=true;
+            session_available = true;
             break;
         }
     }
@@ -86,28 +94,28 @@ EXPORT int lxi_connect(const char *address, int port, const char *name, int time
     // Set up protocol backend
     switch (protocol)
     {
-        case VXI11:
-            session[i].connect = vxi11_connect;
-            session[i].send = vxi11_send;
-            session[i].receive = vxi11_receive;
-            session[i].disconnect = vxi11_disconnect;
-            session[i].data = malloc(sizeof(vxi11_data_t));
-            break;
-        case RAW:
-            session[i].connect = tcp_connect;
-            session[i].send = tcp_send;
-            session[i].receive = tcp_receive;
-            session[i].disconnect = tcp_disconnect;
-            session[i].data = malloc(sizeof(tcp_data_t));
-            break;
-        case HISLIP:
-            // Error: Not yet supported
-            goto error_protocol;
-            break;
-        default:
-            // Error: Unknown protocol
-            goto error_protocol;
-            break;
+    case VXI11:
+        session[i].connect = vxi11_connect;
+        session[i].send = vxi11_send;
+        session[i].receive = vxi11_receive;
+        session[i].disconnect = vxi11_disconnect;
+        session[i].data = malloc(sizeof(vxi11_data_t));
+        break;
+    case RAW:
+        session[i].connect = tcp_connect;
+        session[i].send = tcp_send;
+        session[i].receive = tcp_receive;
+        session[i].disconnect = tcp_disconnect;
+        session[i].data = malloc(sizeof(tcp_data_t));
+        break;
+    case HISLIP:
+        // Error: Not yet supported
+        goto error_protocol;
+        break;
+    default:
+        // Error: Unknown protocol
+        goto error_protocol;
+        break;
     }
 
     // Connect
@@ -172,7 +180,6 @@ EXPORT int lxi_send(int device, const char *message, int length, int timeout)
     return bytes_sent;
 }
 
-
 EXPORT int lxi_receive(int device, char *message, int length, int timeout)
 {
     int bytes_received;
@@ -196,15 +203,15 @@ EXPORT int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type)
 {
     switch (type)
     {
-        case DISCOVER_VXI11:
-            vxi11_discover(info, timeout);
-            break;
-        case DISCOVER_MDNS:
-            mdns_discover(info, timeout);
-            break;
-        default:
-            error_printf("Unknown discover type (%d)\n", type);
-            return LXI_ERROR;
+    case DISCOVER_VXI11:
+        vxi11_discover(info, timeout);
+        break;
+    case DISCOVER_MDNS:
+        mdns_discover(info, timeout);
+        break;
+    default:
+        error_printf("Unknown discover type (%d)\n", type);
+        return LXI_ERROR;
     }
 
     return LXI_OK;
@@ -214,18 +221,18 @@ EXPORT int lxi_discover_if(lxi_info_t *info, const char *ifname, int timeout, lx
 {
     switch (type)
     {
-        case DISCOVER_VXI11:
-            if (ifname == NULL)
-                vxi11_discover(info, timeout);
-            else
-                vxi11_discover_if(info, ifname, timeout);
-            break;
-        case DISCOVER_MDNS:
-            mdns_discover(info, timeout);
-            break;
-        default:
-            error_printf("Unknown discover type (%d)\n", type);
-            return LXI_ERROR;
+    case DISCOVER_VXI11:
+        if (ifname == NULL)
+            vxi11_discover(info, timeout);
+        else
+            vxi11_discover_if(info, ifname, timeout);
+        break;
+    case DISCOVER_MDNS:
+        mdns_discover(info, timeout);
+        break;
+    default:
+        error_printf("Unknown discover type (%d)\n", type);
+        return LXI_ERROR;
     }
 
     return LXI_OK;

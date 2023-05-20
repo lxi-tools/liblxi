@@ -29,18 +29,23 @@
  */
 
 #include <lxi.h>
+#include <stdio.h>
 
 #ifdef HAVE_AVAHI
 #include "avahi.h"
 #endif
 
-int mdns_discover(lxi_info_t *info, int timeout)
-{
-
-#ifdef HAVE_AVAHI
-    return avahi_discover(info, timeout);
+#ifdef HAVE_BONJOUR
+#include "bonjour.h"
 #endif
 
+int mdns_discover(lxi_info_t *info, int timeout)
+{
+#ifdef HAVE_AVAHI
+    return avahi_discover(info, timeout);
+#elif defined(HAVE_BONJOUR)
+    return bonjour_discover(info, timeout);
+#else
     return 0;
+#endif
 }
-
