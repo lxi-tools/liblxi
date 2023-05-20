@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <lxi.h>
 
-// Example - Search for LXI instruments using VXI-11 discovery
+// Example - Search for LXI instruments using mDNS discovery
 
 static void service_callback(const char *address, const char *id, const char *service, int port)
 {
