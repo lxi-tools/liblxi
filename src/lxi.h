@@ -32,39 +32,48 @@
 #define LXI_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#define LXI_OK     0
+#define LXI_OK 0
 #define LXI_ERROR -1
 
-typedef struct
-{
-    void (*broadcast)(const char *address, const char *interface);
-    void (*device)(const char *address, const char *id);
-    void (*service)(const char *address, const char *id, const char *service, int port);
-} lxi_info_t;
+    typedef struct
+    {
+        const char *broadcast_type;
+        const char *service_name;
+    } lxi_service_t;
 
-typedef enum
-{
-    VXI11,
-    RAW,
-    HISLIP
-} lxi_protocol_t;
+    extern lxi_service_t lxi_services[];
 
-typedef enum
-{
-    DISCOVER_VXI11,
-    DISCOVER_MDNS
-} lxi_discover_t;
+    typedef struct
+    {
+        void (*broadcast)(const char *address, const char *interface);
+        void (*device)(const char *address, const char *id);
+        void (*service)(const char *address, const char *id, const char *service, int port);
+    } lxi_info_t;
 
-int lxi_init(void);
-int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type);
-int lxi_discover_if(lxi_info_t *info, const char* ifname, int timeout, lxi_discover_t type);
-int lxi_connect(const char *address, int port, const char *name, int timeout, lxi_protocol_t protocol);
-int lxi_send(int device, const char *message, int length, int timeout);
-int lxi_receive(int device, char *message, int length, int timeout);
-int lxi_disconnect(int device);
+    typedef enum
+    {
+        VXI11,
+        RAW,
+        HISLIP
+    } lxi_protocol_t;
+
+    typedef enum
+    {
+        DISCOVER_VXI11,
+        DISCOVER_MDNS
+    } lxi_discover_t;
+
+    int lxi_init(void);
+    int lxi_discover(lxi_info_t *info, int timeout, lxi_discover_t type);
+    int lxi_discover_if(lxi_info_t *info, const char *ifname, int timeout, lxi_discover_t type);
+    int lxi_connect(const char *address, int port, const char *name, int timeout, lxi_protocol_t protocol);
+    int lxi_send(int device, const char *message, int length, int timeout);
+    int lxi_receive(int device, char *message, int length, int timeout);
+    int lxi_disconnect(int device);
 
 #ifdef __cplusplus
 }

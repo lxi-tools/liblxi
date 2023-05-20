@@ -13,15 +13,18 @@ liblxi_deps = [
   dependency('threads', required: true),
 ]
 
-if meson.get_compiler('c').has_header('avahi-client/client.h')
-  # without avahi, mdns discovery won't do anything
-  add_project_arguments('-DHAVE_AVAHI', language: 'c')
-  liblxi_sources += 'avahi.c'
-endif
-
 tirpc_excluded_systems = ['darwin']
 liblxi_link_args = ['-fvisibility=hidden']
 tirpc_incdir = []
+
+# without avahi or bonjour, mdns discovery won't do anything
+if meson.get_compiler('c').has_header('avahi-client/client.h')
+  add_project_arguments('-DHAVE_AVAHI', language: 'c')
+  liblxi_sources += 'avahi.c'
+elif meson.get_compiler('c').has_header('dns_sd.h')
+  add_project_arguments('-DHAVE_BONJOUR', language: 'c')
+  liblxi_sources += 'bonjour.c'
+endif
 
 if host_machine.system() not in tirpc_excluded_systems
   tirpc_dep = dependency('libtirpc', required: true)
@@ -52,4 +55,3 @@ liblxi = shared_library(
 )
 
 install_headers('lxi.h')
-
