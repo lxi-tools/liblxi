@@ -1,4 +1,29 @@
-=== liblxi v1.19 ===
+=== liblxi v1.20 ===
+
+
+
+Changes since liblxi v1.19:
+
+Rob Carruthers:
+
+ * refactor(bonjour): Fix typo & Refine browse default domain
+
+ * feat(bonjour): Add mdns support for macOS
+
+    This code is designed to discover LXI (LAN eXtensions for Instrumentation) devices using the Bonjour service (dns_sd.h) discovery protocol. The flow of the implementation is as follows:
+
+    1. bonjour_discover(lxi_info_t *info, int timeout_ms) is the entry point of the code. It takes an lxi_info_t struct to store the discovered information and a timeout in milliseconds. It calls the browse_lxi_services() function with these parameters. The lxi_info_t is setup with callbacks to initially to recieve the discovered instrument data. See test folder for examples.
+
+    2. lxi_info_t struct is defined in lxi.h.
+    browse_lxi_services(lxi_info_t *info, int timeout_ms) iterates through lxi_services (defined in lxi.h) and calls the Bonjour DNSServiceBrowse() function for each service. It then processes the results and sets a timeout to stop waiting for results after a specified duration. It provides the browse_callback() function as a callback.
+
+    3. browse_callback() is called for each discovered service. It extracts relevant information about the service and then creates a browse_data_t struct to aggregate service data. It calls DNSServiceResolve() to resolve the service's hostname, and provides resolve_callback() as a callback.
+
+    4. resolve_callback() is called once the service hostname is resolved. It calls the resolve_ip_address() function to convert the hostname into an IP address. It also extracts more information about the service and then calls the info->service() callback function with the discovered service's information. Finally, it frees the memory allocated for the browse_data_t struct.
+
+    5. resolve_ip_address() takes a hostname and port, and converts them into an IP address using the getaddrinfo() function. The resulting IP address is stored in the provided buffer.
+
+    Service types and labels are declared in the lxi_services array in  src/lxc.c
 
 
 
