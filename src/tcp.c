@@ -45,7 +45,7 @@
 int tcp_connect(void *data, const char *address, int port, const char *name, int timeout)
 {
     struct sockaddr_in server_address;
-    struct hostent *host;
+    struct sockaddr_in* addr = NULL;
     struct timeval tv;
     int result, opt;
     fd_set wait_set;
@@ -66,6 +66,7 @@ int tcp_connect(void *data, const char *address, int port, const char *name, int
       error_printf("%s\n", strerror(errno));
       return -1;
     }
+
     // Set socket non-blocking
     if ((fcntl(tcp_data->server_socket, F_SETFL, opt | O_NONBLOCK)) < 0)
     {
@@ -79,19 +80,37 @@ int tcp_connect(void *data, const char *address, int port, const char *name, int
     server_address.sin_port        = htons(port);
     server_address.sin_addr.s_addr = inet_addr(address);
 
+    // If no resolved server address
     if (server_address.sin_addr.s_addr == (unsigned long) INADDR_NONE)
     {
-        // Look up host address
-        host = gethostbyname(address);
+        // Resolve server address
+        struct addrinfo hints, *res;
+        char port_number[20];
+        char ipstr[INET_ADDRSTRLEN];
+        int status;
 
-        if (host == (struct hostent *) NULL)
+        memset(&hints, 0, sizeof hints);
+        hints.ai_family = AF_INET;  // Use IPv4
+        hints.ai_socktype = SOCK_STREAM;  // Use TCP sockets
+
+        sprintf(port_number, "%d", port);
+        if ((status = getaddrinfo(address, port_number, &hints, &res)) != 0)
         {
-            error_printf("Host not found\n");
-            close(tcp_data->server_socket);
+            error_printf("getaddrinfo: %s\n", gai_strerror(status));
             return -1;
         }
 
-        memcpy(&server_address.sin_addr, host->h_addr, sizeof(server_address.sin_addr));
+        // Verify that address family is IPv4
+        if (res->ai_family != AF_INET)
+        {
+            error_printf("Not an IPv4 address\n");
+            freeaddrinfo(res);
+            return -1;
+        }
+
+        addr = (struct sockaddr_in*)res->ai_addr;
+        memcpy(&server_address.sin_addr, &addr->sin_addr, sizeof(server_address.sin_addr));
+        freeaddrinfo(res);
     }
 
     tv.tv_sec = timeout / 1000;
