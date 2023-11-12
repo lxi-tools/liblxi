@@ -15,7 +15,6 @@ liblxi_deps = [
 
 tirpc_excluded_systems = ['darwin']
 liblxi_link_args = ['-fvisibility=hidden']
-tirpc_incdir = []
 
 # without avahi or bonjour, mdns discovery won't do anything
 if meson.get_compiler('c').has_header('avahi-client/client.h')
@@ -27,10 +26,7 @@ elif meson.get_compiler('c').has_header('dns_sd.h')
 endif
 
 if host_machine.system() not in tirpc_excluded_systems
-  tirpc_dep = dependency('libtirpc', required: true)
-  tirpc_incpath = join_paths(tirpc_dep.get_variable(pkgconfig: 'includedir'), 'tirpc')
-  tirpc_incdir = include_directories(tirpc_incpath)
-  liblxi_link_args += ['-Wl,-init,init']
+  liblxi_deps += dependency('libtirpc', required: true)
 elif not meson.get_compiler('c').has_header('rpc/rpc.h')
   error('The required RPC headers is not available, cannot proceed with the build.')
 endif
@@ -49,7 +45,6 @@ liblxi = shared_library(
   dependencies: liblxi_deps,
   install: true,
   c_args: liblxi_c_args,
-  include_directories: tirpc_incdir,
   link_args: liblxi_link_args,
   version: '1.0.0',
 )
