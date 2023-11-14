@@ -23,7 +23,7 @@ int ReciveImageData()
   }
 
   // Send SCPI command to request screenshot image data
-  var sent_bytes = LXI.Send(device, command, command.length, timeout);
+  var sent_bytes = LXI.Send(device, command, timeout);
   if (sent_bytes <= 0)
   {
     error("Send failure\n");

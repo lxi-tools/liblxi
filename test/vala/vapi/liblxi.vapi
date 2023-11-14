@@ -15,7 +15,9 @@ namespace LXI {
   
   [CCode (cname = "lxi_service_t", destroy_function = "", has_type_id = false)]
   public struct Service {
+    [CCode (cname = "broadcast_type")]
     string BroadcastType;
+    [CCode (cname = "service_name")]
     string ServiceName;
   }
 
@@ -37,28 +39,32 @@ namespace LXI {
   }
   
   [CCode (cname = "lxi_init")]
-  int Init();
+  public int Init();
   
   [CCode (cname = "lxi_discover")]
-  int Discover(Info info, int timeout, EDiscover type);
+  public int Discover(Info info, int timeout, EDiscover type);
   
   [CCode (cname = "lxi_discover_if")]
-  int DiscoverIf(Info info, string ifname, int timeout, EDiscover type);
+  public int DiscoverIf(Info info, string ifname, int timeout, EDiscover type);
   
   [CCode (cname = "lxi_connect")]
-  int Connect(string address, int port, string? name, int timeout, EProtocol protocol);
+  public int Connect(string address, int port, string? name, int timeout, EProtocol protocol);
   
-  // \todo get length from message
   [CCode (cname = "lxi_send")]
-  int Send(int device, string message, int length, int timeout);
+  private int _Send(int device, uint8[] message, int timeout);
+  [CCode (cname = "vala_lxi_send")]
+  public int Send(int device, string message, int timeout) {
+    return _Send(device, message.data, timeout);
+  }
   
-  // \todo check if "length" argument is correctly generated
   [CCode (cname = "lxi_receive")]
-  int Receive(int device, uint8[] message, int timeout);
+  public int Receive(int device, uint8[] message, int timeout);
   
   [CCode (cname = "lxi_disconnect")]
-  int Disconnect(int device);
+  public int Disconnect(int device);
 
-  // \todo not sure what to do with this
-  //extern lxi_service_t lxi_services[];
+  /* \todo this doesn´t work
+  [CCode (cname = "lxi_services", array_null_terminated = true)]
+  public Service[] Services;
+  */
 }

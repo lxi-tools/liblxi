@@ -17,7 +17,7 @@ int SCPI()
   }
 
   // Send SCPI command
-  LXI.Send(device, command, command.length, timeout);
+  LXI.Send(device, command, timeout);
 
   // Wait for response
   LXI.Receive(device, response, timeout);
