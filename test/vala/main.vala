@@ -3,7 +3,7 @@ int main(string[] args)
   Search();
   SearchMDNS();
   SCPI();
-  ReciveImageData();
+  ReceiveImageData();
 
   return 0;
 }

@@ -2,15 +2,17 @@
 
 int SCPI()
 {
+  print("SCPI test\n");
+
   uint8[] response = new uint8[65536];
-  int device, timeout = 3000;
+  int timeout = 3000;
   string command = "*IDN?";
 
   // Initialize LXI library
   LXI.Init();
 
   // Connect LXI device
-  device = LXI.Connect("10.42.0.42", 0, null, timeout, LXI.EProtocol.VXI11);
+  var device = LXI.Connect("192.168.0.157", 0, null, timeout, LXI.EProtocol.VXI11);
   if (device < 0)
   {
     error("Unable to connect\n");

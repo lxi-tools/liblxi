@@ -2,6 +2,8 @@
 
 int Search()
 {
+  print("Search test\n");
+
   var info = LXI.Info();
 
   // Initialize LXI library
@@ -11,7 +13,7 @@ int Search()
   info.broadcast = (address, iface) => { print("  Broadcasting on interface %s\n", iface); };
   info.device    = (address, id)    => { print("  Found %s on address %s\n", id, address); };
 
-  print("Searching for LXI devices - please wait...\n\n");
+  print("Searching for LXI devices - please wait...\n");
 
   // Search for LXI devices, 1 second timeout
   LXI.Discover(info, 3000, LXI.EDiscover.VXI11);

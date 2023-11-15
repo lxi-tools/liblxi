@@ -1,22 +1,24 @@
 // Example - send SCPI screenshot command to instrument and receive image data using RAW protocol
 //
-// Tested with Rohde & Schwarz RTB2004 DSO
+// Tested with Rigol DS1000Z
 //
 // Similar operation can be done using netcat (nc):
 //
-// time echo "HCOPy:DATA?" | nc -w1 192.168.0.157 5025 | dd bs=1 skip=7 of=image.png
+// time echo "DISPlay:DATA? ON,0,PNG" | nc -w1 192.168.0.157 5555 | dd bs=1 skip=7 of=image.png
 
-int ReciveImageData()
+int ReceiveImageData()
 {
+  print("ReceiveImageData test\n");
+
   string response = "";
-  int device, timeout = 1000;
-  string command = "HCOPy:DATA?\n";
+  int timeout = 1000;
+  string command = "DISPlay:DATA? ON,0,PNG\n";
 
   // Initialize LXI library
   LXI.Init();
 
   // Connect LXI device
-  device = LXI.Connect("192.168.0.157", 5025, null, timeout, LXI.EProtocol.RAW);
+  var device = LXI.Connect("192.168.0.157", 5555, null, timeout, LXI.EProtocol.RAW);
   if (device < 0)
   {
     error("Unable to connect\n");
@@ -33,19 +35,20 @@ int ReciveImageData()
   int total_recv_bytes = 0;
   while (true)
   {
-    uint8[] response_part = new uint8[65536*2];
+    uint8 response_part[65536];
 
     var recv_bytes = LXI.Receive(device, response_part, timeout);
     if (recv_bytes <= 0)
       break;
 
+    print("Received %d bytes\n", recv_bytes);
+
     total_recv_bytes += recv_bytes;
 
-    // \todo I'm guessing this should work
     response += (string) response_part;
   }
 
-  print("Received %d bytes\n", total_recv_bytes);
+  print("Received %d bytes total\n", total_recv_bytes);
 
   // Add code here to skip meta header and save only PNG image data to file
 
