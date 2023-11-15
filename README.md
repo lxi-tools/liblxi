@@ -3,7 +3,6 @@
 [![](https://img.shields.io/circleci/build/github/lxi-tools/liblxi)](https://circleci.com/gh/lxi-tools/liblxi/tree/master)
 [![](https://img.shields.io/github/v/release/lxi-tools/liblxi?sort=semver)](https://github.com/lxi-tools/liblxi/releases)
 [![](https://img.shields.io/repology/repositories/liblxi)](https://repology.org/project/liblxi/versions)
-[![](https://img.shields.io/tokei/lines/github/lxi-tools/liblxi)](https://github.com/lxi-tools/liblxi)
 
 
 ## 1. Introduction
