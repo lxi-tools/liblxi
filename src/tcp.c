@@ -187,8 +187,8 @@ int tcp_send(void *data, const char *message, int length, int timeout)
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
     // Set timeout
-    tv.tv_sec = 0;
-    tv.tv_usec = timeout * 1000;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
 
     FD_ZERO(&wdfs);
     FD_SET(tcp_data->server_socket, &wdfs);
@@ -237,8 +237,8 @@ static int tcp_receive_(void *data, char *message, int length, int timeout, int 
     tcp_data_t *tcp_data = (tcp_data_t *) data;
 
     // Set timeout
-    tv.tv_sec = 0;
-    tv.tv_usec = timeout * 1000;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
 
     FD_ZERO(&rdfs);
     FD_SET(tcp_data->server_socket, &rdfs);
