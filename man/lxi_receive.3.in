@@ -11,7 +11,7 @@ lxi_receive \- receive message from LXI device
 
 .SH "DESCRIPTION"
 .PP
-The .
+The
 .BR lxi_receive()
 function receives up to 
 .I length
