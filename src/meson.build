@@ -16,13 +16,19 @@ liblxi_deps = [
 tirpc_excluded_systems = ['darwin']
 liblxi_link_args = ['-fvisibility=hidden']
 
-# without avahi or bonjour, mdns discovery won't do anything
-if meson.get_compiler('c').has_header('avahi-client/client.h')
-  add_project_arguments('-DHAVE_AVAHI', language: 'c')
-  liblxi_sources += 'avahi.c'
-elif meson.get_compiler('c').has_header('dns_sd.h')
-  add_project_arguments('-DHAVE_BONJOUR', language: 'c')
-  liblxi_sources += 'bonjour.c'
+if(build_machine.system() == 'cygwin')
+  liblxi_link_args = ['-lws2_32']
+  add_project_arguments('-DHAVE_CYGWIN_DNSSD', language: 'c')
+  liblxi_sources += 'cygwin_dnssd.c'
+else
+  # without avahi or bonjour, mdns discovery won't do anything
+  if meson.get_compiler('c').has_header('avahi-client/client.h')
+    add_project_arguments('-DHAVE_AVAHI', language: 'c')
+    liblxi_sources += 'avahi.c'
+  elif meson.get_compiler('c').has_header('dns_sd.h')
+    add_project_arguments('-DHAVE_BONJOUR', language: 'c')
+    liblxi_sources += 'bonjour.c'
+  endif
 endif
 
 if host_machine.system() not in tirpc_excluded_systems

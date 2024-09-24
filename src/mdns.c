@@ -39,12 +39,18 @@
 #include "bonjour.h"
 #endif
 
+#ifdef HAVE_CYGWIN_DNSSD
+#include "cygwin_dnssd.h"
+#endif
+
 int mdns_discover(lxi_info_t *info, int timeout)
 {
 #ifdef HAVE_AVAHI
     return avahi_discover(info, timeout);
 #elif defined(HAVE_BONJOUR)
     return bonjour_discover(info, timeout);
+#elif defined(HAVE_CYGWIN_DNSSD)
+    return cygwin_dnssd_discover(info, timeout);
 #else
     return 0;
 #endif
