@@ -169,7 +169,7 @@ void browse_lxi_services(lxi_info_t *info, int timeout_ms)
         else if (result == 0)
         {
             fprintf(stderr, "DNSServiceProcessResult() timed out\n");
-            return;
+            continue;
         }
         else
         {
