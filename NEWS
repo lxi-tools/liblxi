@@ -1,4 +1,34 @@
-=== liblxi v1.20 ===
+=== liblxi v1.21 ===
+
+
+
+Changes since liblxi v1.20:
+
+ * Cleanup libtirpc dependency checking
+
+    Sun RPC has finally migrated fully from glibc to libtirpc so we can now
+    do a standard meson dependency check for libtirpc. If you are on an
+    older platform you will have to apply this patch reverted.
+
+ * Remove search_mdns binary added by accident
+
+ * Fix use of obsolete gethostbyname()
+
+   Use getaddrinfo() instead to resolve hostname.
+
+Primoz Salic:
+
+ * fix:  Only finds _lxi._tcp services on MacOS, not the others #84
+
+ * Add Windows support
+
+Jakub Wilk:
+
+ * Fix typo
+
+Peder Toftegaard Olsen:
+
+ * Fixed tcp timeout
 
 
 
