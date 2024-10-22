@@ -17,7 +17,7 @@ tirpc_excluded_systems = ['darwin']
 liblxi_link_args = ['-fvisibility=hidden']
 
 if(build_machine.system() == 'cygwin')
-  liblxi_link_args = ['-lws2_32']
+  liblxi_link_args += ['-lws2_32']
   add_project_arguments('-DHAVE_CYGWIN_DNSSD', language: 'c')
   liblxi_sources += 'cygwin_dnssd.c'
 else
