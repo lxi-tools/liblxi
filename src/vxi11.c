@@ -543,12 +543,12 @@ int vxi11_discover(lxi_info_t *info, int timeout)
 
         while (ifap_p)
         {
-            if ((ifap_p->ifa_addr) && (ifap_p->ifa_addr->sa_family == AF_INET))
+            if ((ifap_p->ifa_addr) && (ifap_p->ifa_broadaddr) && (ifap_p->ifa_addr->sa_family == AF_INET))
             {
                 broadcast_addr = (struct sockaddr_in *) ifap_p->ifa_broadaddr;
 
                 // Notify current broadcast address and network interface via callback
-                if (info->broadcast != NULL)
+                if ((info->broadcast != NULL) && (ifap_p->ifa_name != NULL))
                     info->broadcast(inet_ntoa(broadcast_addr->sin_addr), ifap_p->ifa_name);
 
                 // Find VXI11 devices via broadcast address
