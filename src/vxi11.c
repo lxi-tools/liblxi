@@ -48,6 +48,12 @@
 #include "tcp.h"
 #include "error.h"
 
+
+#ifdef __CYGWIN__
+#include "windows_socket.h"
+#endif
+
+
 #define PORT_HTTP                80
 #define PORT_RPC                111
 #define ID_REQ_HTTP "GET /lxi/identification HTTP/1.0\r\n\r\n";
@@ -536,6 +542,9 @@ int vxi11_discover(lxi_info_t *info, int timeout)
     struct sockaddr_in *broadcast_addr;
     struct ifaddrs *ifap;
 
+#ifdef __CYGWIN__
+    windows_socket_initialize();
+#endif
     // Go through available broadcast addresses
     if (getifaddrs(&ifap) == 0)
     {
@@ -559,6 +568,10 @@ int vxi11_discover(lxi_info_t *info, int timeout)
         }
         freeifaddrs(ifap);
     }
+
+#ifdef __CYGWIN__
+    windows_socket_cleanup();
+#endif
 
     return 0;
 }

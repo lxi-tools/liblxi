@@ -20,6 +20,7 @@ if(build_machine.system() == 'cygwin')
   liblxi_link_args += ['-lws2_32']
   add_project_arguments('-DHAVE_CYGWIN_DNSSD', language: 'c')
   liblxi_sources += 'cygwin_dnssd.c'
+  liblxi_sources += 'windows_socket.c'
 else
   # without avahi or bonjour, mdns discovery won't do anything
   if meson.get_compiler('c').has_header('avahi-client/client.h')
