@@ -463,7 +463,11 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     int count;
     char buffer[ID_LENGTH_MAX];
     char id[ID_LENGTH_MAX];
+#ifdef __CYGWIN__
+    unsigned long  tv;
+#else
     struct timeval tv;
+#endif
     socklen_t addrlen;
 
     // Create a socket
@@ -483,8 +487,13 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     }
 
     // Set socket options - timeout
+#ifdef __CYGWIN__
+    tv = timeout;
+#else
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
+#endif
+
     if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
     {
         error_printf("setsockopt - SO_RCVTIMEO");
