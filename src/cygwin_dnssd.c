@@ -22,8 +22,16 @@ typedef struct
 
 
 
-#define DNSSD_DLL "C:\\Windows\\System32\\dnssd.dll"
+#define DNSSD_DLL "dnssd.dll"
 #define LONG_TIME 100000000
+
+lxi_service_t lxi_services[] = {
+    {"_lxi._tcp.", "lxi"},
+    {"_vxi-11._tcp.", "vxi-11"},
+    {"_scpi-raw._tcp.", "scpi-raw"},
+    {"_scpi-telnet._tcp.", "scpi-telnet"},
+    {"_hislip._tcp.", "hislip"},
+    {NULL, NULL}};
 
 
 static void *hDnssdDLL = NULL;
@@ -227,8 +235,7 @@ void browse_lxi_services(lxi_info_t *info, int timeout_ms)
     DNSServiceRef service;
     DNSServiceErrorType error;
 
-    //const TIMEVAL timeout = {(timeout_ms / 1000), (timeout_ms % 1000) * 1000};
-    const TIMEVAL timeout = {1, 0};
+    const TIMEVAL timeout = {(timeout_ms / 1000), (timeout_ms % 1000) * 1000};
     for (lxi_service_t *s = lxi_services; s->broadcast_type != NULL; s++)
     {
         error = DNSServiceBrowse(&service, 0, 0, s->broadcast_type, NULL, browse_callback, info);
@@ -272,12 +279,14 @@ void browse_lxi_services(lxi_info_t *info, int timeout_ms)
     DNSServiceRefDeallocate(service);
 }
 
-void cygwin_dnssd_discover(lxi_info_t *info, int timeout_ms)
+int cygwin_dnssd_discover(lxi_info_t *info, int timeout_ms)
 {
     if(load_cygwin_dnssd_dll()!=0)
     {
         fprintf(stderr, "error load dll %s\n", DNSSD_DLL);
-        return;
+        return -1;
     }
     browse_lxi_services(info, timeout_ms);
+
+    return 0;
 }
