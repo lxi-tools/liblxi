@@ -16,11 +16,29 @@ liblxi_deps = [
 tirpc_excluded_systems = ['darwin']
 liblxi_link_args = ['-fvisibility=hidden']
 
+liblxi_c_args = [
+  '-Wno-unused-variable',
+  '-Wno-unused-parameter',
+  '-Wno-unused-result',
+  '-fvisibility=hidden',
+  '-D_GNU_SOURCE',
+]
+
+link_with_shared_libs = []
 if(build_machine.system() == 'cygwin')
-  liblxi_link_args += ['-lws2_32']
   add_project_arguments('-DHAVE_CYGWIN_DNSSD', language: 'c')
-  liblxi_sources += 'cygwin_dnssd.c'
-  liblxi_sources += 'windows_socket.c'
+
+  liblxi_mdns_sources = 'cygwin_dnssd.c'
+  liblxi_mdns_link_args = ['-lws2_32']
+  lxi_mdns = shared_library(
+    'lxi_mdns',
+    liblxi_mdns_sources,
+    install: true,
+    c_args: liblxi_c_args,
+    link_args: liblxi_mdns_link_args,
+    version: '1.0.0',
+  )
+  link_with_shared_libs += lxi_mdns
 else
   # without avahi or bonjour, mdns discovery won't do anything
   if meson.get_compiler('c').has_header('avahi-client/client.h')
@@ -38,14 +56,6 @@ elif not meson.get_compiler('c').has_header('rpc/rpc.h')
   error('The required RPC headers is not available, cannot proceed with the build.')
 endif
 
-liblxi_c_args = [
-  '-Wno-unused-variable',
-  '-Wno-unused-parameter',
-  '-Wno-unused-result',
-  '-fvisibility=hidden',
-  '-D_GNU_SOURCE',
-]
-
 liblxi = shared_library(
   'lxi',
   liblxi_sources,
@@ -53,6 +63,7 @@ liblxi = shared_library(
   install: true,
   c_args: liblxi_c_args,
   link_args: liblxi_link_args,
+  link_with: link_with_shared_libs,
   version: '1.0.0',
 )
 

@@ -48,12 +48,6 @@
 #include "tcp.h"
 #include "error.h"
 
-
-#ifdef __CYGWIN__
-#include "windows_socket.h"
-#endif
-
-
 #define PORT_HTTP                80
 #define PORT_RPC                111
 #define ID_REQ_HTTP "GET /lxi/identification HTTP/1.0\r\n\r\n";
@@ -463,11 +457,7 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     int count;
     char buffer[ID_LENGTH_MAX];
     char id[ID_LENGTH_MAX];
-#ifdef __CYGWIN__
-    unsigned long  tv;
-#else
     struct timeval tv;
-#endif
     socklen_t addrlen;
 
     // Create a socket
@@ -487,13 +477,8 @@ static int discover_devices(struct sockaddr_in *broadcast_addr, lxi_info_t *info
     }
 
     // Set socket options - timeout
-#ifdef __CYGWIN__
-    tv = timeout;
-#else
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
-#endif
-
     if ((setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))) == -1)
     {
         error_printf("setsockopt - SO_RCVTIMEO");
@@ -551,9 +536,6 @@ int vxi11_discover(lxi_info_t *info, int timeout)
     struct sockaddr_in *broadcast_addr;
     struct ifaddrs *ifap;
 
-#ifdef __CYGWIN__
-    windows_socket_initialize();
-#endif
     // Go through available broadcast addresses
     if (getifaddrs(&ifap) == 0)
     {
@@ -577,10 +559,6 @@ int vxi11_discover(lxi_info_t *info, int timeout)
         }
         freeifaddrs(ifap);
     }
-
-#ifdef __CYGWIN__
-    windows_socket_cleanup();
-#endif
 
     return 0;
 }
