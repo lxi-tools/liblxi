@@ -53,6 +53,33 @@ lxi_service_t lxi_services[] = {
     {"_hislip._tcp.", "hislip"},
     {NULL, NULL}};
 
+bool is_valid_session(int device)
+{
+    bool status = true;
+
+    if (device < 0)
+    {
+        status = false;
+    }
+    else if (device > SESSIONS_MAX)
+    {
+        status = false;
+    }
+    else
+    {
+        pthread_mutex_lock(&session_mutex);
+
+        if (session[device].allocated == false)
+        {
+            status = false;
+        }
+
+        pthread_mutex_unlock(&session_mutex);
+    }
+
+    return status;
+}
+
 EXPORT int lxi_init(void)
 {
     int i;
@@ -141,7 +168,7 @@ error_session:
 
 EXPORT int lxi_disconnect(int device)
 {
-    if (device > SESSIONS_MAX)
+    if (is_valid_session(device) == false)
         return LXI_ERROR;
 
     pthread_mutex_lock(&session_mutex);
@@ -165,10 +192,7 @@ EXPORT int lxi_send(int device, const char *message, int length, int timeout)
 {
     int bytes_sent;
 
-    if (device < 0)
-        return LXI_ERROR;
-
-    if (session[device].connected == false)
+    if (is_valid_session(device) == false)
         return LXI_ERROR;
 
     // Send
@@ -184,10 +208,7 @@ EXPORT int lxi_receive(int device, char *message, int length, int timeout)
 {
     int bytes_received;
 
-    if (device < 0)
-        return LXI_ERROR;
-
-    if (session[device].connected == false)
+    if (is_valid_session(device) == false)
         return LXI_ERROR;
 
     // Receive
