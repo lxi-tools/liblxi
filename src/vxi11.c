@@ -195,7 +195,12 @@ int vxi11_connect(void *data, const char *address, int port, const char *name, i
 
     // Convert timeout in ms to timespec
     timeout_tv.tv_sec += timeout / 1000;
-    timeout_tv.tv_nsec += (timeout % 1000) * 1000;
+    timeout_tv.tv_nsec += (timeout % 1000) * 1000000;
+    if (timeout_tv.tv_nsec >= 1000000000)
+    {
+        timeout_tv.tv_sec += 1;
+        timeout_tv.tv_nsec %= 1000000000;
+    }
 
     // Start thread that will perform the connect action
     status = pthread_create(&thread, NULL, thread_vxi11_connect, &args);
